@@ -7,7 +7,7 @@ export default {
   root: join(import.meta.dirname, 'src', 'client'),
   build: {
     emptyOutDir: true,
-    outDir: join(import.meta.dirname, 'dist'),
+    outDir: join(import.meta.dirname, 'dist'), // Output client assets and manifest to PROJECT_ROOT/dist/
     manifest: true,
   },
   plugins: [
