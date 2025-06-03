@@ -1,1 +1,0 @@
-import{createRoutes as t}from"@fastify/react/server";const o={routes:t(import("./assets/routes-BVAcPEs2.js")),create:import("./assets/create-Bu3PZEUS.js"),context:import("./assets/context-CECsqk2q.js")};export{o as default};
