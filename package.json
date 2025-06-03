@@ -2,12 +2,18 @@
   "type": "module",
   "scripts": {
     "lint": "oxlint",
-    "dev": "tsx src/server.ts --dev",
+    "dev": "tsx scripts/db-setup.ts && tsx src/server.ts --dev",
+    "db:setup": "tsx scripts/db-setup.ts",
     "start": "NODE_ENV=production node dist/server.js",
-    "build": "npm run build:client && npm run build:server",
+    "build": "npm run db:setup && npm run build:client && npm run build:server",
     "build:server": "tsc",
     "build:client": "NODE_ENV=production vite build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "db:migrate:make": "tsx ./node_modules/.bin/knex migrate:make -x ts --knexfile knexfile.ts",
+    "db:migrate:latest": "tsx ./node_modules/.bin/knex migrate:latest --knexfile knexfile.ts",
+    "db:migrate:rollback": "tsx ./node_modules/.bin/knex migrate:rollback --knexfile knexfile.ts",
+    "db:seed:make": "tsx ./node_modules/.bin/knex seed:make -x ts --knexfile knexfile.ts",
+    "db:seed:run": "tsx ./node_modules/.bin/knex seed:run --knexfile knexfile.ts"
   },
   "dependencies": {
     "@fastify/formbody": "^8.0.2",
@@ -15,14 +21,18 @@
     "@fastify/react": "^1.1.0",
     "@fastify/vite": "^8.1.2",
     "@unhead/react": "^2.0.8",
+    "dotenv": "^16.5.0",
     "fastify": "^5.3.2",
     "history": "^5.3.0",
+    "knex": "^3.1.0",
     "minipass": "^7.1.2",
+    "mysql": "^2.18.1",
+    "pg": "^8.16.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.5.0",
-    "valtio": "^2.1.4",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "valtio": "^2.1.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.1",
@@ -34,6 +44,7 @@
     "postcss": "^8.5.3",
     "postcss-preset-env": "^10.1.5",
     "tailwindcss": "^4.1.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vite": "^6.2.4"

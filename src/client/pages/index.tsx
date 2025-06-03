@@ -12,24 +12,15 @@ export function getMeta () {
 export default function Index() {
   const { snapshot, state } = useRouteContext()
   const [newTaskTitle, setNewTaskTitle] = useState('')
-  const [isClient, setIsClient] = useState(false)
   
-  // Set client flag after hydration to avoid hydration mismatch
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-  
-  // Initialize state on both server and client consistently
-  // Wrap in useEffect to avoid hydration mismatch
-  useEffect(() => {
-    if (!snapshot.initialized) {
-      state.message = 'Task Management App'
-      state.tasks = []
-      state.loading = true
-      state.error = null
-      state.initialized = true
-    }
-  }, [])
+  // Initialize state on server and client
+  if (!snapshot.initialized) {
+    state.message = 'Task Management App'
+    state.tasks = []
+    state.loading = true
+    state.error = null
+    state.initialized = true
+  }
   
   // Data fetching (for both client and server)
   useEffect(() => {
@@ -122,10 +113,7 @@ export default function Index() {
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Your Tasks</h2>
         
-        {/* Server-side and initial client render always shows loading */}
-        {!isClient ? (
-          <p>Loading tasks...</p>
-        ) : snapshot.loading ? (
+        {snapshot.loading ? (
           <p>Loading tasks...</p>
         ) : snapshot.error ? (
           <p className="text-red-500">{snapshot.error}</p>

@@ -15,13 +15,12 @@
     "noUnusedLocals": true,
     "removeComments": true,
     "resolveJsonModule": true,
-    "rootDir": "src",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "ESNext",
     "verbatimModuleSyntax": true
   },
-  "include": ["src"],
+  "include": ["src", "knexfile.ts", "scripts/**/*"],
   "exclude": ["src/client/**/*", "src/**/*.test.ts"]
 }

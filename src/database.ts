@@ -1,144 +1,123 @@
-import sqlite3 from 'sqlite3';
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
+import knex from 'knex';
+import type { Knex as KnexType } from 'knex';
+import knexConfig from '../knexfile.js'; // knexfile now exports the config directly
+import { existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 
-// Database path
-const DB_PATH = resolve(process.cwd(), 'data.db');
+// The knexConfig is now the direct configuration object,
+// dynamically built by knexfile.ts based on environment variables.
 
-// Database helper that wraps SQLite operations in promises
-class SQLiteDB {
-  private db: sqlite3.Database;
-
-  constructor(db: sqlite3.Database) {
-    this.db = db;
-  }
-
-  // Execute an SQL query that doesn't return data
-  async run(sql: string, params: any[] = []): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
-  }
-
-  // Execute an SQL query that returns all matching rows
-  async all(sql: string, params: any[] = []): Promise<any[]> {
-    return new Promise<any[]>((resolve, reject) => {
-      this.db.all(sql, params, (err, rows) => {
-        if (err) return reject(err);
-        resolve(rows);
-      });
-    });
-  }
-
-  // Execute an SQL query that returns the first matching row
-  async get(sql: string, params: any[] = []): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-      this.db.get(sql, params, (err, row) => {
-        if (err) return reject(err);
-        resolve(row);
-      });
-    });
-  }
-
-  // Close the database connection
-  async close(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.db.close(err => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
+// Ensure the directory for SQLite database exists if using SQLite.
+if (
+  knexConfig.client === 'sqlite3' &&
+  typeof knexConfig.connection === 'object' && // Check it's an object, not a connection string
+  knexConfig.connection !== null &&
+  'filename' in knexConfig.connection && // Type guard
+  typeof (knexConfig.connection as { filename: string }).filename === 'string'
+) {
+  const dbPath = (knexConfig.connection as { filename: string }).filename;
+  const dbDir = dirname(dbPath);
+  if (!existsSync(dbDir)) {
+    try {
+      mkdirSync(dbDir, { recursive: true });
+      console.log(`Created directory for SQLite database: ${dbDir}`);
+    } catch (error) {
+      console.error(`Failed to create directory ${dbDir}:`, error);
+      // Depending on the application's needs, you might want to re-throw or exit
+    }
   }
 }
 
-// Initialize the database
-export async function setupDatabase(): Promise<SQLiteDB> {
-  console.log('Setting up SQLite database at:', DB_PATH);
-  
-  // Create database connection
-  const sqliteDb = new sqlite3.Database(DB_PATH, (err) => {
-    if (err) {
-      console.error('Error opening database:', err.message);
-      throw err;
+// Initialize Knex with the resolved config
+const db: KnexType = knex(knexConfig);
+
+// Optional: Test the connection and log status.
+db.raw('SELECT 1')
+  .then(() => {
+    console.log(`Successfully connected to the database using client: '${knexConfig.client}'.`);
+    if (
+      knexConfig.client === 'sqlite3' &&
+      typeof knexConfig.connection === 'object' &&
+      knexConfig.connection &&
+      'filename' in knexConfig.connection
+    ) {
+      console.log(`SQLite database is configured at: ${(knexConfig.connection as { filename: string }).filename}`);
+    } else if (typeof knexConfig.connection === 'string') {
+      console.log(`Using connection string: ${knexConfig.connection}`);
+    } else if (typeof knexConfig.connection === 'object') {
+        const connDetails = knexConfig.connection as KnexType.ConnectionConfig;
+        console.log(`Connected to host: ${connDetails.host}, database: ${connDetails.database}`);
     }
+  })
+  .catch((err) => {
+    console.error(`Failed to connect to the database. Please check your environment variables and knexfile.ts. Client: '${knexConfig.client}'`, err);
+    // process.exit(1);
   });
-  
-  const db = new SQLiteDB(sqliteDb);
-  
-  // Enable foreign keys
-  await db.run('PRAGMA foreign_keys = ON');
 
-  // Create schema
-  await createSchema(db);
-
-  // Seed data if needed
-  await seedData(db);
-
-  return db;
+/**
+ * Interface for a Task record in the database.
+ */
+export interface Task {
+  id: number;
+  title: string;
+  completed: boolean;
+  created_at: string;
+  updated_at: string; // To track the last modification time
 }
 
-// Create database schema
-async function createSchema(db: SQLiteDB): Promise<void> {
-  console.log('Creating database schema');
-  
-  // Create tasks table
-  await db.run(`
-    CREATE TABLE IF NOT EXISTS tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      completed INTEGER DEFAULT 0,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
+// Database interaction functions
+
+/**
+ * Retrieves all tasks from the database, ordered by ID.
+ * @returns A promise that resolves to an array of tasks.
+ */
+export async function getAllTasks(): Promise<Task[]> {
+  const tasks = await db('tasks').select('*').orderBy('id', 'asc');
+  return tasks;
 }
 
-// Seed initial data
-async function seedData(db: SQLiteDB): Promise<void> {
-  // Check if we already have data
-  const result = await db.get('SELECT COUNT(*) as count FROM tasks');
-  
-  // Only seed if no data exists
-  if (result.count === 0) {
-    console.log('Seeding database with initial data');
-    
-    // Sample task titles
-    const tasks = [
-      'Complete project documentation',
-      'Deploy application to production',
-      'Set up CI/CD pipeline',
-      'Review pull requests',
-      'Fix UI responsiveness issue',
-      'Write unit tests for new features'
-    ];
-    
-    // Add each task
-    for (const task of tasks) {
-      await db.run('INSERT INTO tasks (title) VALUES (?)', [task]);
-    }
-    
-    console.log('Database seeded with initial data');
+/**
+ * Adds a new task to the database.
+ * @param title The title of the task.
+ * @returns A promise that resolves to the newly created task.
+ */
+export async function addTask(title: string): Promise<Task> {
+  const [newTask] = await db('tasks')
+    .insert({ title, completed: false }) // created_at and updated_at will use defaultTo(knex.fn.now())
+    .returning('*');
+  return newTask;
+}
+
+/**
+ * Deletes a task from the database by its ID.
+ * @param id The ID of the task to delete.
+ * @returns A promise that resolves when the task is deleted.
+ */
+export async function deleteTask(id: number): Promise<void> {
+  await db('tasks').where({ id }).del();
+}
+
+/**
+ * Toggles the completion status of a task and updates its 'updated_at' timestamp.
+ * @param id The ID of the task to update.
+ * @returns A promise that resolves to the updated task, or undefined if the task is not found.
+ */
+export async function toggleTaskCompletion(id: number): Promise<Task | undefined> {
+  const task = await db('tasks').where({ id }).first();
+
+  if (!task) {
+    return undefined;
   }
+
+  const [updatedTask] = await db('tasks')
+    .where({ id })
+    .update({
+      completed: !task.completed,
+      updated_at: db.fn.now(), // Explicitly update the updated_at timestamp
+    })
+    .returning('*');
+  
+  return updatedTask;
 }
 
-// Get all tasks
-export async function getAllTasks(db: SQLiteDB): Promise<any[]> {
-  return db.all('SELECT * FROM tasks ORDER BY created_at DESC');
-}
-
-// Add a new task
-export async function addTask(db: SQLiteDB, title: string): Promise<void> {
-  await db.run('INSERT INTO tasks (title) VALUES (?)', [title]);
-}
-
-// Delete a task
-export async function deleteTask(db: SQLiteDB, id: number): Promise<void> {
-  await db.run('DELETE FROM tasks WHERE id = ?', [id]);
-}
-
-// Toggle task completion status
-export async function toggleTaskCompletion(db: SQLiteDB, id: number): Promise<void> {
-  await db.run('UPDATE tasks SET completed = NOT completed WHERE id = ?', [id]);
-}
+export default db;

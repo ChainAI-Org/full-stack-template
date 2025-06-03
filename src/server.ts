@@ -2,12 +2,10 @@ import { resolve } from 'node:path'
 import Fastify from 'fastify'
 import FastifyVite from '@fastify/vite'
 import FastifyFormBody from '@fastify/formbody'
-import sqlite3 from 'sqlite3'
-import { setupDatabase, getAllTasks, addTask, deleteTask } from './database'
+// sqlite3 import removed - using Knex now
+import { getAllTasks, addTask, deleteTask } from './database.js'
 
-interface Database {
-  db: sqlite3.Database
-}
+// Database interface removed - using Knex now
 
 const server = Fastify({
   logger: {
@@ -28,28 +26,25 @@ await server.register(FastifyVite, {
 
 await server.vite.ready()
 
-// Initialize and setup SQLite database
-const sqliteDb = await setupDatabase()
+// Database is now initialized via Knex in the imported functions
 
-// Decorate server with database instance
-server.decorate<Database>('db', {
-  db: sqliteDb
+// Decorate server with todoList for client-side context
+server.decorate('todoList', async () => {
+  return await getAllTasks();
 })
 
 // Get all tasks
 server.get('/api/tasks', async (req, reply) => {
-  const dbInstance = server.getDecorator<Database>('db').db
-  const tasks = await getAllTasks(dbInstance)
-  reply.send(tasks)
+  const tasks = await getAllTasks();
+  reply.send(tasks);
 })
 
 // Add a new task
 server.post<{
   Body: { title: string }
 }>('/api/tasks', async (req, reply) => {
-  const dbInstance = server.getDecorator<Database>('db').db
-  await addTask(dbInstance, req.body.title)
-  const tasks = await getAllTasks(dbInstance)
+  await addTask(req.body.title)
+  const tasks = await getAllTasks()
   reply.send(tasks)
 })
 
@@ -57,9 +52,8 @@ server.post<{
 server.delete<{
   Body: { id: number }
 }>('/api/tasks', async (req, reply) => {
-  const dbInstance = server.getDecorator<Database>('db').db
-  await deleteTask(dbInstance, req.body.id)
-  const tasks = await getAllTasks(dbInstance)
+  await deleteTask(req.body.id)
+  const tasks = await getAllTasks()
   reply.send(tasks)
 })
 

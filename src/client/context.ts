@@ -6,9 +6,10 @@ import { sendJSON } from '/fetch.ts'
 // the server and once on the client during the
 // first render, that is, it's not executed again
 // in subsquent client-side navigation via React Router.
-export default (ctx) => {
+export default async (ctx) => {
   if (ctx.server) {
-    ctx.state.todoList = ctx.server.db.todoList
+    // Use the new todoList decorator which returns a Promise
+    ctx.state.todoList = await ctx.server.todoList()
   }
 }
 
