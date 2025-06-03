@@ -9,11 +9,11 @@
     "build:server": "tsc",
     "build:client": "NODE_ENV=production vite build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "db:migrate:make": "tsx ./node_modules/.bin/knex migrate:make -x ts --knexfile knexfile.ts",
-    "db:migrate:latest": "tsx ./node_modules/.bin/knex migrate:latest --knexfile knexfile.ts",
-    "db:migrate:rollback": "tsx ./node_modules/.bin/knex migrate:rollback --knexfile knexfile.ts",
-    "db:seed:make": "tsx ./node_modules/.bin/knex seed:make -x ts --knexfile knexfile.ts",
-    "db:seed:run": "tsx ./node_modules/.bin/knex seed:run --knexfile knexfile.ts"
+    "db:migrate:make": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:make -x ts --knexfile knexfile.ts",
+    "db:migrate:latest": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:latest --knexfile knexfile.ts",
+    "db:migrate:rollback": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:rollback --knexfile knexfile.ts",
+    "db:seed:make": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex seed:make -x ts --knexfile knexfile.ts",
+    "db:seed:run": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex seed:run --knexfile knexfile.ts"
   },
   "dependencies": {
     "@fastify/formbody": "^8.0.2",
