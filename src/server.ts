@@ -1,9 +1,14 @@
-import { resolve } from 'node:path'
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Fastify from 'fastify'
 import FastifyVite from '@fastify/vite'
 import FastifyFormBody from '@fastify/formbody'
 // sqlite3 import removed - using Knex now
-import { getAllTasks, addTask, deleteTask } from './database.js'
+import { getAllTasks, addTask, deleteTask } from './database.js';
+
+// Recreate __dirname for ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Database interface removed - using Knex now
 
@@ -19,8 +24,8 @@ await server.register(FastifyFormBody)
 
 await server.register(FastifyVite, {
   // TODO handle via CLI path argument with proper resolve
-  root: resolve(import.meta.dirname, '..'),
-  distDir: import.meta.dirname, // This file will also live in the dist folder when built
+  root: resolve(__dirname, '..'),
+  distDir: __dirname, // This file will also live in the dist folder when built
   renderer: '@fastify/react',
 })
 
