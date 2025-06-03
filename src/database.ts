@@ -1,6 +1,6 @@
 import knex from 'knex';
 import type { Knex as KnexType } from 'knex';
-import knexConfig from '../knexfile.js'; // knexfile now exports the config directly
+import knexConfig from './knexfile.js'; // knexfile now exports the config directly
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 

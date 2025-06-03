@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 // Load environment variables from .env file if present
 dotenv.config();
 
-const BASE_PATH = path.join(__dirname, 'src', 'db'); // Base path for migrations, seeds, and default SQLite file
+const BASE_PATH = path.join(__dirname, 'db'); // Base path for migrations, seeds, and default SQLite file
 
 const client: string = process.env.DB_CLIENT || 'sqlite3';
 let connection: Knex.Config['connection'];
@@ -64,7 +64,7 @@ if (process.env.DB_CONNECTION_STRING) {
     case 'sqlite3':
     default: // Default to SQLite if DB_CLIENT is not set or unrecognized
       const sqliteConnectionDetails = {
-        filename: process.env.DB_FILENAME || path.join(__dirname, 'data.db'),
+        filename: process.env.DB_FILENAME || path.join(__dirname, '..', 'data.db'), // Defaults to project_root/data.db
       } as Knex.Sqlite3ConnectionConfig; // Type assertion here
       connection = sqliteConnectionDetails;
       break;

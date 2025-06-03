@@ -1,11 +1,12 @@
 import knex from 'knex';
+// Use path alias for config files
 import config from '../knexfile.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SETUP_MARKER_FILE = path.join(__dirname, '..', '.db-setup-complete');
+const SETUP_MARKER_FILE = path.join(__dirname, '..', '..', '.db-setup-complete'); // Points to project root
 
 async function checkIfMigrationsNeeded() {
   // If the marker file exists, assume setup is complete

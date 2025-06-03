@@ -1,4 +1,4 @@
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Fastify from 'fastify'
 import FastifyVite from '@fastify/vite'
@@ -6,9 +6,14 @@ import FastifyFormBody from '@fastify/formbody'
 // sqlite3 import removed - using Knex now
 import { getAllTasks, addTask, deleteTask } from './database.js';
 
-// Recreate __dirname for ES module scope
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Determine execution environment and project root
+const _currentServerFileDirname = dirname(fileURLToPath(import.meta.url));
+const isProduction = process.env.NODE_ENV === 'production';
+// In dev (src/server.ts), _currentServerFileDirname is PROJECT_ROOT/src/. Project root is '..'.
+// In prod (dist/server.js), _currentServerFileDirname is PROJECT_ROOT/dist/. Project root is '..'.
+const __projectRoot = resolve(_currentServerFileDirname, '..');
+
+const clientBuildOutputDir = join(__projectRoot, 'dist');
 
 // Database interface removed - using Knex now
 
@@ -23,10 +28,12 @@ const server = Fastify({
 await server.register(FastifyFormBody)
 
 await server.register(FastifyVite, {
-  // TODO handle via CLI path argument with proper resolve
-  root: resolve(__dirname, '..'),
-  distDir: __dirname, // This file will also live in the dist folder when built
+  root: __projectRoot,       // Set @fastify/vite root to project root
   renderer: '@fastify/react',
+  // In production, distDir points to where client assets are (PROJECT_ROOT/dist).
+  // This was the configuration when the production server started successfully.
+  distDir: isProduction ? clientBuildOutputDir : undefined,
+  // viteConfig option removed; @fastify/vite will look for vite.config.js in its root (__projectRoot)
 })
 
 await server.vite.ready()

@@ -8,6 +8,7 @@ export default {
   build: {
     emptyOutDir: true,
     outDir: join(import.meta.dirname, 'dist'),
+    manifest: true,
   },
   plugins: [
     viteReact(),

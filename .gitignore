@@ -2,3 +2,5 @@ dist
 node_modules
 data.db
 /.db-setup-complete
+**/.DS_Store
+tsconfig.tsbuildinfo
