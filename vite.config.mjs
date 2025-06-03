@@ -3,7 +3,10 @@ import { fileURLToPath } from 'node:url';
 
 import viteReact from '@vitejs/plugin-react';
 import viteFastifyReact from '@fastify/react/plugin';
-import tsconfigPaths from 'vite-tsconfig-paths';
+
+// Import PostCSS plugins
+import tailwindcssPostcss from '@tailwindcss/postcss';
+import postcssPresetEnv from 'postcss-preset-env';
 
 // Recreate __dirname for ES module scope
 const __filename = fileURLToPath(import.meta.url);
@@ -15,12 +18,23 @@ export default {
     emptyOutDir: true,
     outDir: join(__dirname, 'dist'),
   },
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcssPostcss(),
+        postcssPresetEnv({
+          stage: 1,
+          features: {
+            'nesting-rules': false
+          }
+        })
+      ]
+    }
+  },
   plugins: [
     viteReact(),
     viteFastifyReact({
       ts: true
     }),
-    // Add support for tsconfig paths
-    tsconfigPaths(),
   ],
 }
