@@ -12,12 +12,12 @@ dotenv.config();
 
 const BASE_PATH = path.join(__dirname, 'db'); // Base path for migrations, seeds, and default SQLite file
 
-const client: string = process.env.DB_CLIENT || 'sqlite3';
+const client: string = process.env.DATABASE_CLIENT || 'sqlite3';
 let connection: Knex.Config['connection'];
 
 // Prioritize DB_CONNECTION_STRING if available
-if (process.env.DB_CONNECTION_STRING) {
-  connection = process.env.DB_CONNECTION_STRING;
+if (process.env.DATABASE_CONNECTION_STRING) {
+  connection = process.env.DATABASE_CONNECTION_STRING;
   // For SQLite, if DB_CONNECTION_STRING is used, it's the filename.
   // We need to ensure it's an absolute path or relative to project root if not already.
   // However, Knex handles relative paths for SQLite filenames well, often resolving them from the knexfile's directory.
@@ -26,35 +26,35 @@ if (process.env.DB_CONNECTION_STRING) {
   // Fallback to individual parameters
   switch (client) {
     case 'pg':
-      const pgUser = process.env.DB_USER;
-      const pgPassword = process.env.DB_PASSWORD;
-      const pgDatabase = process.env.DB_NAME;
+      const pgUser = process.env.DATABASE_USERNAME;
+      const pgPassword = process.env.DATABASE_PASSWORD;
+      const pgDatabase = process.env.DATABASE_NAME;
 
       if (pgUser === undefined || pgPassword === undefined || pgDatabase === undefined) {
-        throw new Error('For PostgreSQL (pg), DB_USER, DB_PASSWORD, and DB_NAME environment variables must be set when not using DB_CONNECTION_STRING.');
+        throw new Error('For PostgreSQL (pg), DATABASE_USERNAME, DATABASE_PASSWORD, and DATABASE_NAME environment variables must be set when not using DATABASE_CONNECTION_STRING.');
       }
       const pgConnectionDetails = {
-        host: process.env.DB_HOST || '127.0.0.1',
-        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
+        host: process.env.DATABASE_HOST || '127.0.0.1',
+        port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT, 10) : 5432,
         user: pgUser,
         password: pgPassword,
         database: pgDatabase,
-        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
+        ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined
       } as Knex.PgConnectionConfig; // Type assertion here
       connection = pgConnectionDetails;
       break;
     case 'mysql':
     case 'mysql2': // mysql2 is often preferred
-      const mysqlUser = process.env.DB_USER;
-      const mysqlPassword = process.env.DB_PASSWORD;
-      const mysqlDatabase = process.env.DB_NAME;
+      const mysqlUser = process.env.DATABASE_USERNAME;
+      const mysqlPassword = process.env.DATABASE_PASSWORD;
+      const mysqlDatabase = process.env.DATABASE_NAME;
 
       if (mysqlUser === undefined || mysqlPassword === undefined || mysqlDatabase === undefined) {
-        throw new Error('For MySQL (mysql/mysql2), DB_USER, DB_PASSWORD, and DB_NAME environment variables must be set when not using DB_CONNECTION_STRING.');
+        throw new Error('For MySQL (mysql/mysql2), DATABASE_USERNAME, DATABASE_PASSWORD, and DATABASE_NAME environment variables must be set when not using DATABASE_CONNECTION_STRING.');
       }
       const mysqlConnectionDetails = {
-        host: process.env.DB_HOST || '127.0.0.1',
-        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+        host: process.env.DATABASE_HOST || '127.0.0.1',
+        port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT, 10) : 3306,
         user: mysqlUser,
         password: mysqlPassword,
         database: mysqlDatabase,
@@ -64,7 +64,7 @@ if (process.env.DB_CONNECTION_STRING) {
     case 'sqlite3':
     default: // Default to SQLite if DB_CLIENT is not set or unrecognized
       const sqliteConnectionDetails = {
-        filename: process.env.DB_FILENAME || path.join(__dirname, '..', 'data.db'), // Defaults to project_root/data.db
+        filename: process.env.DATABASE_FILENAME || path.join(__dirname, '..', 'data.db'), // Defaults to project_root/data.db
       } as Knex.Sqlite3ConnectionConfig; // Type assertion here
       connection = sqliteConnectionDetails;
       break;
