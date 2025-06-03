@@ -2,7 +2,8 @@ import knex from 'knex';
 import type { Knex } from 'knex';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import knexConfig from '../knexfile.js';
+// Use path alias for config files
+import knexConfig from '@config/knexfile';
 
 // Ensure the directory for SQLite database exists if using SQLite
 if (

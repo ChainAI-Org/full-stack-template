@@ -19,7 +19,15 @@
     "sourceMap": true,
     "strict": true,
     "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@server/*": ["src/server/*"],
+      "@client/*": ["src/client/*"],
+      "@database": ["src/database.ts"],
+      "@config/*": ["*.ts", "*.mjs"]
+    }
   },
   "include": ["src", "knexfile.ts", "scripts/**/*"],
   "exclude": ["src/client/**/*", "src/**/*.test.ts"]

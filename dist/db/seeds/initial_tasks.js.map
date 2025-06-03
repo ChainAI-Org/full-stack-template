@@ -1,0 +1,1 @@
+{"version":3,"file":"initial_tasks.js","sourceRoot":"","sources":["../../../src/db/seeds/initial_tasks.ts"],"names":[],"mappings":"AAEA,MAAM,CAAC,KAAK,UAAU,IAAI,CAAC,IAAU;IAGjC,MAAM,IAAI,CAAC,OAAO,CAAC,CAAC,MAAM,CAAC;QACvB,EAAE,KAAK,EAAE,eAAe,EAAE,SAAS,EAAE,IAAI,EAAE;QAC3C,EAAE,KAAK,EAAE,kBAAkB,EAAE,SAAS,EAAE,KAAK,EAAE;KAClD,CAAC,CAAC;AACP,CAAC;AAAA,CAAC"}

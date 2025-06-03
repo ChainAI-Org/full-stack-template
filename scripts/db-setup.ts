@@ -1,5 +1,6 @@
 import knex from 'knex';
-import config from '../knexfile.js'; // Note: TypeScript compiles to .js
+// Use path alias for config files
+import config from '@config/knexfile';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

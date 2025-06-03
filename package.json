@@ -2,18 +2,18 @@
   "type": "module",
   "scripts": {
     "lint": "oxlint",
-    "dev": "tsx scripts/db-setup.ts && tsx src/server.ts --dev",
-    "db:setup": "tsx scripts/db-setup.ts",
-    "start": "NODE_ENV=production node dist/server.js",
+    "dev": "tsx -r tsconfig-paths/register scripts/db-setup.ts && tsx -r tsconfig-paths/register src/server.ts --dev",
+    "db:setup": "tsx -r tsconfig-paths/register scripts/db-setup.ts",
+    "start": "NODE_ENV=production node -r tsconfig-paths/register dist/server.js",
     "build": "npm run db:setup && npm run build:client && npm run build:server",
     "build:server": "tsc",
     "build:client": "NODE_ENV=production vite build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "db:migrate:make": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:make -x ts --knexfile knexfile.ts",
-    "db:migrate:latest": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:latest --knexfile knexfile.ts",
-    "db:migrate:rollback": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:rollback --knexfile knexfile.ts",
-    "db:seed:make": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex seed:make -x ts --knexfile knexfile.ts",
-    "db:seed:run": "tsx --tsconfig tsconfig.json ./node_modules/.bin/knex seed:run --knexfile knexfile.ts"
+    "db:migrate:make": "tsx -r tsconfig-paths/register --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:make -x ts --knexfile knexfile.ts",
+    "db:migrate:latest": "tsx -r tsconfig-paths/register --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:latest --knexfile knexfile.ts",
+    "db:migrate:rollback": "tsx -r tsconfig-paths/register --tsconfig tsconfig.json ./node_modules/.bin/knex migrate:rollback --knexfile knexfile.ts",
+    "db:seed:make": "tsx -r tsconfig-paths/register --tsconfig tsconfig.json ./node_modules/.bin/knex seed:make -x ts --knexfile knexfile.ts",
+    "db:seed:run": "tsx -r tsconfig-paths/register --tsconfig tsconfig.json ./node_modules/.bin/knex seed:run --knexfile knexfile.ts"
   },
   "dependencies": {
     "@fastify/formbody": "^8.0.2",
@@ -45,8 +45,10 @@
     "postcss-preset-env": "^10.1.5",
     "tailwindcss": "^4.1.1",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
-    "vite": "^6.2.4"
+    "vite": "^6.2.4",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
