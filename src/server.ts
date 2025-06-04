@@ -69,4 +69,15 @@ server.delete<{
   reply.send(tasks)
 })
 
-await server.listen({ port: 3000 })
+const port = 3000;
+const host = '0.0.0.0';
+
+await server.listen({
+  port,
+  host,
+  listenTextResolver: (address) => {
+    // The 'address' parameter (e.g., 'http://127.0.0.1:3000') is available but ignored here.
+    // We construct the desired log message using the configured host and port.
+    return `Server listening at http://${host}:${port}`;
+  }
+});
