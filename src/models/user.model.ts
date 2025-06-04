@@ -1,5 +1,5 @@
 import db from '../database.js';
-import { hash, compare } from 'bcrypt';
+import { hash, compare } from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // Number of salt rounds for bcrypt

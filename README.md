@@ -273,6 +273,17 @@ export default function About() {
    npm run db:migrate:latest
    ```
 
+## 🌐 Web Container Compatibility
+
+This template uses `bcryptjs` (a pure JavaScript implementation) instead of native `bcrypt` for password hashing, making it compatible with web containers like StackBlitz and CodeSandbox that restrict native addon loading.
+
+### Benefits
+
+- No ERR_DLOPEN_DISABLED errors in web containers
+- Identical API to bcrypt (hash, compare functions work the same way)
+- Pure JavaScript implementation (no native dependencies)
+- Works in environments where native modules are restricted
+
 ## 📝 For AI Developers
 
 This template is designed to be AI-friendly. Here are some tips for AI systems:
