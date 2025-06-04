@@ -10,6 +10,9 @@ export default {
     outDir: join(import.meta.dirname, 'dist'), // Output client assets and manifest to PROJECT_ROOT/dist/
     manifest: true,
   },
+  server: {
+    allowedHosts: true
+  },
   plugins: [
     viteReact(),
     viteFastifyReact({
