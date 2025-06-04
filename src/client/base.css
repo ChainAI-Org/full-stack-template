@@ -1,100 +1,91 @@
-/*
-Optional:
-https://tailwindcss.com/docs/preflight
-@tailwind base;
-*/
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS v4 import */
+@import 'tailwindcss';
 
-:root {
-  --color-base: #f1f1f1;
-  --color-highlight: #ff80ff;
+/* Define custom colors using Tailwind v4's pattern */
+@theme {
+  /* Simple custom colors with direct hex values */
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-secondary-500: #8b5cf6;
+  --color-secondary-600: #7c3aed;
 }
+
+/* Modern UI styles with gradients */
 html {
-  background: #222;
+  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+  color: #111827;
+  min-height: 100vh;
 }
+
+body {
+  min-height: 100vh;
+}
+
 #root {
-  width:  800px;
-  margin:  0 auto;
-  padding: 2em;
-  box-shadow: 5px 5px 30px rgba(0,0,0,0.4);
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, 0.1);
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--color-base);
-  margin-top: 60px;
-  & a {
-    color: var(--color-highlight);
-    text-decoration: none;
-    font-weight: bold;
-    border-bottom: 1px solid var(--color-highlight);
-    &:hover {
-      color: #ffde00;
-    }
-    &:active {
-      color: #eecf00
-    }
-  }
-  & p {
-    font-size: 1.2em;
-  }
-  & ul {
-    & li {
-      &:not(:last-child) {
-        margin-bottom: 0.5em;
-      }
-      break-inside: avoid;
-      font-size: 1em;
-    }
-  }
-  & code {
-    color: #ffde00;
-    font-weight: bold;
-    font-family: 'Consolas', 'Andale Mono', monospace;
-    font-size: 0.9em;
-  }
-  & img {
-    width: 14em;
-  }
 }
 
-button, input[type=button] {
-  margin: 0;
-  border: none;
-  box-shadow: none;
-  cursor: pointer;
-  color: #333;
-  font-size: 1.2em;
-  background: #ff80ff;
-  padding: 0.5em;
-  &:hover {
-    background: #ff5eff;
-    color: #000;
-  }
+/* Custom button styles */
+button.btn-primary {
+  @apply px-4 py-2 bg-linear-to-r from-primary-500 to-secondary-500 text-white rounded-md
+    shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200
+    hover:from-primary-600 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
 }
 
-label {
-  margin: 0;
-  outline: none;
-  border: none;
-  box-shadow: none;
-  color: #fff;
-  font-size: 1.2em;
-  margin-right: 0.5em;
-  padding: 0.5em;
+button.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3), 0 4px 6px -2px rgba(14, 165, 233, 0.2);
 }
 
-input {
-  margin: 0;
-  outline: none;
-  border: none;
-  box-shadow: none;
-  color: #333;
-  font-size: 1.2em;
-  background: #ccc;
-  margin-right: 0.5em;
-  border: 2px solid #ff80ff;
-  padding: calc(0.5em - 2px);
+button.btn-secondary {
+  background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 100%);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2), 0 2px 4px -1px rgba(139, 92, 246, 0.1);
+}
+
+button.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3), 0 4px 6px -2px rgba(139, 92, 246, 0.2);
+}
+
+/* Basic styling */
+a {
+  color: #0ea5e9;
+  font-weight: bold;
+}
+
+a:hover {
+  color: #0369a1;
+}
+
+a:active {
+  color: #075985;
+}
+
+p {
+  font-size: 1em;
+}
+
+ul li:not(:last-child) {
+  margin-bottom: 0.5em;
+}
+
+ul li {
+  break-inside: avoid;
+  font-size: 1em;
+}
+
+code {
+  font-family: 'Consolas', 'Andale Mono', monospace;
+  font-size: 0.9em;
+}
+
+img {
+  max-width: 100%;
 }

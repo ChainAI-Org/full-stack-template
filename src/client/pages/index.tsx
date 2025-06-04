@@ -1,7 +1,8 @@
 import logo from '/assets/logo.svg'
 import { Link } from 'react-router'
 import { useRouteContext } from '@fastify/react/client'
-import { useState, useEffect } from 'react'
+import * as React from 'react'
+import { useAuth } from '../context/AuthContext'
 
 export function getMeta () {
   return {
@@ -11,145 +12,79 @@ export function getMeta () {
 
 export default function Index() {
   const { snapshot, state } = useRouteContext()
-  const [newTaskTitle, setNewTaskTitle] = useState('')
+  const { user } = useAuth()
   
   // Initialize state on server and client
   if (!snapshot.initialized) {
     state.message = 'Task Management App'
-    state.tasks = []
-    state.loading = true
-    state.error = null
     state.initialized = true
   }
   
-  // Data fetching (for both client and server)
-  useEffect(() => {
-    // Skip if we already have tasks or are in the middle of loading
-    if (snapshot.tasks?.length > 0 || snapshot.loading === false) {
-      return
-    }
-    
-    // Fetch tasks
-    fetch('/api/tasks')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('API request failed')
-        }
-        return response.json()
-      })
-      .then(data => {
-        state.tasks = data
-        state.loading = false
-      })
-      .catch(error => {
-        console.error('Failed to fetch tasks:', error)
-        state.error = 'Failed to load tasks'
-        state.loading = false
-      })
-  }, [snapshot.initialized])
-  
-  
-  // Handle task addition
-  const addTask = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newTaskTitle.trim()) return
-    
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTaskTitle })
-      })
-      
-      if (response.ok) {
-        state.tasks = await response.json()
-        setNewTaskTitle('')
-      }
-    } catch (error) {
-      console.error('Failed to add task:', error)
-    }
-  }
-  
-  // Handle task deletion
-  const deleteTask = async (id: number) => {
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      })
-      
-      if (response.ok) {
-        state.tasks = await response.json()
-      }
-    } catch (error) {
-      console.error('Failed to delete task:', error)
-    }
-  }
+  // No task handling on home page - all moved to tasks page
   
   return (
     <div className="max-w-4xl mx-auto p-4">
       <img src={logo} className="mx-auto h-24 mb-4" />
-      <h1 className="text-2xl font-bold text-center mb-6">{snapshot.message}</h1>
+      <h1 className="text-4xl font-bold text-center mb-6 text-blue-600" style={{background: "linear-gradient(to right, #0ea5e9, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}}>
+        {snapshot.message}
+      </h1>
       
-      {/* Task Form */}
-      <form onSubmit={addTask} className="mb-8 flex gap-2">
-        <input
-          type="text"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          placeholder="Add a new task..."
-          className="flex-1 p-2 border rounded"
-        />
-        <button 
-          type="submit" 
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Add Task
-        </button>
-      </form>
+      {user ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8 text-center">
+          <h2 className="text-xl font-semibold text-green-800 mb-2">Welcome, {user.username}!</h2>
+          <p className="mb-4">You're logged in and can now manage your personal tasks.</p>
+          <Link 
+            to="/tasks" 
+            className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Go to My Tasks
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-center">
+          <h2 className="text-xl font-semibold text-blue-800 mb-2">Welcome to the Task Manager</h2>
+          <p className="mb-4">Sign up or log in to create and manage your personal tasks.</p>
+          <div className="flex justify-center gap-4">
+            <Link 
+              to="/login" 
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Log In
+            </Link>
+            <Link 
+              to="/signup" 
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              Sign Up
+            </Link>
+          </div>
+        </div>
+      )}
       
-      {/* Task List */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Your Tasks</h2>
-        
-        {snapshot.loading ? (
-          <p>Loading tasks...</p>
-        ) : snapshot.error ? (
-          <p className="text-red-500">{snapshot.error}</p>
-        ) : snapshot.tasks?.length === 0 ? (
-          <p>No tasks yet. Add one above!</p>
-        ) : (
-          <ul className="space-y-2">
-            {snapshot.tasks?.map((task: any) => (
-              <li key={task.id} className="flex items-center justify-between p-3 border rounded">
-                <span className={task.completed ? 'line-through text-gray-500' : ''}>
-                  {task.title}
-                </span>
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+      {/* Information about the app */}
+      <div style={{background: "linear-gradient(135deg, #ffffff, #f3f4f6)", padding: "1.5rem", borderRadius: "0.75rem", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)", border: "1px solid #e5e7eb", marginBottom: "2rem"}}>
+        <h2 style={{background: "linear-gradient(to right, #0ea5e9, #8b5cf6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: "1.5rem", fontWeight: 600, marginBottom: "1rem"}}>Task Management Made Simple</h2>
+        <p className="text-gray-600 mb-4">
+          This application allows you to create, manage, and track your personal tasks securely. 
+          All your tasks are private and only visible to you after logging in.
+        </p>
+        <div className="flex flex-wrap gap-4 mt-6">
+          <div style={{flex: 1, minWidth: "200px", padding: "1rem", background: "linear-gradient(135deg, #ffffff, #f9fafb)", borderRadius: "0.5rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05)", border: "1px solid #e5e7eb", transform: "translateY(0)", transition: "transform 0.3s ease, box-shadow 0.3s ease"}}>
+            <h3 style={{background: "linear-gradient(to right, #0ea5e9, #0c4a6e)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 500}}>Secure Authentication</h3>
+            <p className="text-gray-600 text-sm mt-1">Your tasks are protected with secure JWT authentication</p>
+          </div>
+          <div style={{flex: 1, minWidth: "200px", padding: "1rem", background: "linear-gradient(135deg, #ffffff, #f9fafb)", borderRadius: "0.5rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05)", border: "1px solid #e5e7eb", transform: "translateY(0)", transition: "transform 0.3s ease, box-shadow 0.3s ease"}}>
+            <h3 style={{background: "linear-gradient(to right, #8b5cf6, #4c1d95)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 500}}>Personal Task Lists</h3>
+            <p className="text-gray-600 text-sm mt-1">Each user gets their own isolated task collection</p>
+          </div>
+          <div style={{flex: 1, minWidth: "200px", padding: "1rem", background: "linear-gradient(135deg, #ffffff, #f9fafb)", borderRadius: "0.5rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05)", border: "1px solid #e5e7eb", transform: "translateY(0)", transition: "transform 0.3s ease, box-shadow 0.3s ease"}}>
+            <h3 style={{background: "linear-gradient(to right, #14b8a6, #0f766e)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 500}}>Modern Tech Stack</h3>
+            <p className="text-gray-600 text-sm mt-1">Built with React, TypeScript, and Fastify</p>
+          </div>
+        </div>
       </div>
       
-      {/* Example Links */}
-      <div className="mt-8 pt-6 border-t">
-        <h2 className="text-lg font-semibold mb-2">Other Examples</h2>
-        <ul className="columns-2 list-disc list-inside">
-          <li><Link to="/using-data">/using-data</Link> — isomorphic data fetching</li>
-          <li><Link to="/using-store">/using-store</Link> — integrated <a href="https://github.com/pmndrs/valtio">Valtio</a> store</li>
-          <li><Link to="/using-auth">/using-auth</Link> — <b>custom layout</b></li>
-          <li><Link to="/form/123">/form/123</Link> — <code>POST</code> to dynamic route</li>
-          <li><Link to="/actions/data">/actions/data</Link> — inline <code>GET</code> handler</li>
-          <li><Link to="/streaming">/streaming</Link> — <b>streaming</b> SSR</li>
-        </ul>
-      </div>
+
     </div>
   )
 }

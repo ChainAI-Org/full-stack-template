@@ -9,10 +9,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SETUP_MARKER_FILE = path.join(__dirname, '..', '..', '.db-setup-complete'); // Points to project root
 
 async function checkIfMigrationsNeeded() {
-  // If the marker file exists, assume setup is complete
+  // Check if marker file exists
   if (fs.existsSync(SETUP_MARKER_FILE)) {
-    console.log('Database setup already completed. Skipping migrations and seeds.');
-    return false;
+    // Temporarily force migrations to run regardless of marker file
+    console.log('Forcing database migrations to run...');
+    return true;
   }
   
   // Otherwise, we need to run migrations and seeds
