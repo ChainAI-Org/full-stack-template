@@ -1,11 +1,12 @@
 import * as React from 'react';
 const { useState, FormEvent } = React;
 import { useAuth } from '../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { ClientLink } from '../common/ClientLink';
+import { useClientNavigation } from '../../hooks/useClientNavigation';
 
 export function Login() {
   const { login, error, loading, clearError } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useClientNavigation();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -94,9 +95,9 @@ export function Login() {
         </div>
         
         <div className="text-center mt-4">
-          <Link to="/signup" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+          <ClientLink to="/signup" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
             Don't have an account? Sign up
-          </Link>
+          </ClientLink>
         </div>
       </form>
     </div>

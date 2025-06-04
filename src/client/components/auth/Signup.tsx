@@ -1,11 +1,12 @@
 import * as React from 'react';
 const { useState, FormEvent } = React;
 import { useAuth } from '../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { ClientLink } from '../common/ClientLink';
+import { useClientNavigation } from '../../hooks/useClientNavigation';
 
 export function Signup() {
   const { signup, error, loading, clearError } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useClientNavigation();
   
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -137,9 +138,9 @@ export function Signup() {
         </div>
         
         <div className="text-center mt-4">
-          <Link to="/login" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+          <ClientLink to="/login" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             Already have an account? Log in
-          </Link>
+          </ClientLink>
         </div>
       </form>
     </div>

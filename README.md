@@ -275,14 +275,87 @@ export default function About() {
 
 ## 🌐 Web Container Compatibility
 
-This template uses `bcryptjs` (a pure JavaScript implementation) instead of native `bcrypt` for password hashing, making it compatible with web containers like StackBlitz and CodeSandbox that restrict native addon loading.
+This project is designed to run smoothly in web container environments like StackBlitz or CodeSandbox.
 
-### Benefits
+### Password Hashing
 
-- No ERR_DLOPEN_DISABLED errors in web containers
-- Identical API to bcrypt (hash, compare functions work the same way)
-- Pure JavaScript implementation (no native dependencies)
-- Works in environments where native modules are restricted
+To ensure compatibility with web containers that restrict native addons:
+
+```ts
+// Instead of native bcrypt (causes ERR_DLOPEN_DISABLED in web containers):  
+import { hash, compare } from 'bcrypt';
+
+// Using pure JS bcryptjs (web container compatible):  
+import { hash, compare } from 'bcryptjs';
+```
+
+- **bcryptjs**: Uses pure JavaScript implementation instead of native `bcrypt` to avoid `ERR_DLOPEN_DISABLED` errors
+- **Same API**: Identical functions (`hash`, `compare`) as the native version
+
+### SSR Compatibility
+
+To prevent hydration mismatches and React Router errors during server-side rendering, we use a comprehensive approach:
+
+#### 1. Client-Only Content Wrapper
+
+A `ClientOnly` component prevents problematic components from rendering during SSR:
+
+```tsx
+// In src/client/root.tsx
+function ClientOnly({ children }) {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  return mounted ? children : <LoadingPlaceholder />;
+}
+
+// Usage
+<ClientOnly>
+  <Router>...</Router>
+</ClientOnly>
+```
+
+#### 2. SSR-Safe Navigation Hook
+
+```tsx
+// Instead of this (causes SSR errors in web containers):  
+import { useNavigate } from 'react-router-dom';
+const navigate = useNavigate();
+
+// Use this (SSR-safe):  
+import { useClientNavigation } from './hooks/useClientNavigation';
+const navigate = useClientNavigation();
+
+// Navigation example
+navigate('/login'); // Uses History API + dispatches PopStateEvent
+```
+
+#### 3. SSR-Safe Link Component
+
+```tsx
+// Instead of this (causes hydration mismatches and "basename" errors):  
+import { Link } from 'react-router-dom';
+<Link to="/some-path">Link Text</Link>
+
+// Use this (SSR-safe):  
+import { ClientLink } from './components/common/ClientLink';
+<ClientLink to="/some-path">Link Text</ClientLink>
+```
+
+### Implementation Details
+
+- **Hydration Handling**: The `ClientOnly` wrapper ensures all React Router related components are only rendered on the client, avoiding hydration mismatches
+- **History API**: The navigation hook uses the History API with `PopStateEvent` dispatch to maintain SPA behavior without full page reloads
+- **Consistent Rendering**: Links are rendered consistently between server and client to avoid hydration errors
+- **Graceful Fallbacks**: All components have fallback behaviors for non-browser environments
+
+This approach prevents these common errors in web containers:
+- "useNavigate() may be used only in the context of a Router component"
+- "Cannot destructure property 'basename' of undefined"
+- Hydration mismatch warnings and errors
 
 ## 📝 For AI Developers
 
