@@ -6,7 +6,8 @@ import jwt from 'jsonwebtoken';
 // Crypto configuration for password hashing with scrypt
 // These parameters directly affect security and performance
 const SCRYPT_KEYLEN = 64; // Length of the derived key
-const SCRYPT_SALT_SIZE = 16; // 16 bytes = 128 bits for the salt
+const SCRYPT_SALT_SIZE = 16; // 16 bytes 
+// = 128 bits for the salt
 const SCRYPT_OPTIONS = {
   N: process.env.NODE_ENV === 'production' ? 32768 : 16384, // CPU/memory cost factor (higher is more secure but slower)
   r: 8, // Block size factor
@@ -14,10 +15,18 @@ const SCRYPT_OPTIONS = {
   maxmem: 128 * 1024 * 1024 // 128MB memory limit
 };
 
-// Promisify crypto functions
+// Promisify crypto.randomBytes but handle scrypt differently
 const randomBytes = promisify(crypto.randomBytes);
-// Properly type the promisified scrypt function
-const scrypt = promisify<Buffer, Buffer, number, crypto.ScryptOptions, Buffer>(crypto.scrypt);
+
+// Use a callback-based wrapper for scrypt to prevent memory issues
+async function scryptAsync(password: Buffer, salt: Buffer, keylen: number, options: crypto.ScryptOptions): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, keylen, options, (err, derivedKey) => {
+      if (err) return reject(err);
+      resolve(derivedKey);
+    });
+  });
+}
 
 /**
  * Hash a password using the scrypt key derivation function
@@ -29,7 +38,7 @@ async function hashPassword(password: string): Promise<string> {
   
   // Hash the password with the salt using scrypt - convert password to Buffer
   const passwordBuffer = Buffer.from(password, 'utf-8');
-  const derivedKey = await scrypt(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
+  const derivedKey = await scryptAsync(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
   
   // Return the salt and hashed password as hex strings
   return `${salt.toString('hex')}.${derivedKey.toString('hex')}`;
@@ -50,7 +59,7 @@ async function verifyPassword(password: string, hashedPassword: string): Promise
   
   // Hash the input password with the stored salt - convert password to Buffer
   const passwordBuffer = Buffer.from(password, 'utf-8');
-  const derivedKey = await scrypt(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
+  const derivedKey = await scryptAsync(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
   
   // Compare the derived key with the stored hash using a constant-time comparison
   return crypto.timingSafeEqual(derivedKey, hash);

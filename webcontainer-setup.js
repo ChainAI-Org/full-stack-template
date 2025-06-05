@@ -6,15 +6,18 @@ import { writeFileSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import crypto from 'crypto';
 
-// Generate a strong random string for secrets
+// Generate a strong random string for secrets - safe for web containers
 const generateSecret = (length = 32) => {
+  // Generate random bytes in a single call (more efficient)
+  const randomBytes = crypto.randomBytes(length);
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
   let result = '';
-  // Use Node.js crypto module
+  
+  // Map each byte to a character
   for (let i = 0; i < length; i++) {
-    const randomByte = crypto.randomBytes(1)[0];
-    result += chars.charAt(randomByte % chars.length);
+    result += chars.charAt(randomBytes[i] % chars.length);
   }
+  
   return result;
 };
 
