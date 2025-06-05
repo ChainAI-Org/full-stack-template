@@ -1,7 +1,7 @@
 import * as React from 'react';
 const { useState, FormEvent } = React;
 import { useAuth } from '../../context/AuthContext';
-import { ClientLink } from '../common/ClientLink';
+import { Link } from 'react-router';
 import { useClientNavigation } from '../../hooks/useClientNavigation';
 
 export function Signup() {
@@ -138,9 +138,9 @@ export function Signup() {
         </div>
         
         <div className="text-center mt-4">
-          <ClientLink to="/login" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+          <Link to="/login" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
             Already have an account? Log in
-          </ClientLink>
+          </Link>
         </div>
       </form>
     </div>
