@@ -2,11 +2,11 @@ import * as React from 'react';
 const { useState, FormEvent } = React;
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router';
-import { useClientNavigation } from '../../hooks/useClientNavigation';
+
 
 export function Login() {
   const { login, error, loading, clearError } = useAuth();
-  const navigate = useClientNavigation();
+  
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +27,7 @@ export function Login() {
     
     try {
       await login(email, password);
-      navigate('/');
+      window.location.assign('/');
     } catch (err) {
       // Error is handled in the auth context
       console.error('Login error:', err);

@@ -2,11 +2,11 @@ import * as React from 'react';
 const { useState, FormEvent } = React;
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router';
-import { useClientNavigation } from '../../hooks/useClientNavigation';
+
 
 export function Signup() {
   const { signup, error, loading, clearError } = useAuth();
-  const navigate = useClientNavigation();
+  
   
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -40,7 +40,7 @@ export function Signup() {
     try {
       await signup(username, email, password);
       // Signup automatically logs the user in, so navigate to home page
-      navigate('/');
+      window.location.assign('/');
     } catch (err) {
       // Error is already handled in the context
     }

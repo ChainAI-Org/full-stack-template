@@ -1,15 +1,15 @@
 import { Link } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
-import { useClientNavigation } from '../../hooks/useClientNavigation';
+
 
 export function Header() {
   const { user, logout } = useAuth();
-  const navigate = useClientNavigation();
+  
 
   const handleLogout = async () => {
     await logout();
     // Use our improved navigation hook which properly uses History API
-    navigate('/login');
+    window.location.assign('/login');
   };
 
   return (
