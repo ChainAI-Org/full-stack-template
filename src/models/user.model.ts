@@ -1,69 +1,37 @@
 import db from '../database.js';
-import crypto from 'crypto';
-import { promisify } from 'util';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Crypto configuration for password hashing with scrypt
-// These parameters directly affect security and performance
-const SCRYPT_KEYLEN = 64; // Length of the derived key
-const SCRYPT_SALT_SIZE = 16; // 16 bytes 
-// = 128 bits for the salt
-const SCRYPT_OPTIONS = {
-  N: process.env.NODE_ENV === 'production' ? 32768 : 16384, // CPU/memory cost factor (higher is more secure but slower)
-  r: 8, // Block size factor
-  p: 1, // Parallelization factor
-  maxmem: 128 * 1024 * 1024 // 128MB memory limit
-};
-
-// Promisify crypto.randomBytes but handle scrypt differently
-const randomBytes = promisify(crypto.randomBytes);
-
-// Use a callback-based wrapper for scrypt to prevent memory issues
-async function scryptAsync(password: Buffer, salt: Buffer, keylen: number, options: crypto.ScryptOptions): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    crypto.scrypt(password, salt, keylen, options, (err, derivedKey) => {
-      if (err) return reject(err);
-      resolve(derivedKey);
-    });
-  });
-}
+// bcryptjs configuration for password hashing
+// Cost factor directly affects security and performance
+// Higher values are more secure but slower (10-12 recommended for production)
+const BCRYPT_ROUNDS = process.env.NODE_ENV === 'production' ? 12 : 10;
 
 /**
- * Hash a password using the scrypt key derivation function
- * Format: salt.hash where both are stored as hex strings
+ * Hash a password using bcryptjs
+ * 
+ * @param password Plain text password to hash
+ * @returns Hashed password
  */
 async function hashPassword(password: string): Promise<string> {
-  // Generate a random salt
-  const salt = await randomBytes(SCRYPT_SALT_SIZE);
-  
-  // Hash the password with the salt using scrypt - convert password to Buffer
-  const passwordBuffer = Buffer.from(password, 'utf-8');
-  const derivedKey = await scryptAsync(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
-  
-  // Return the salt and hashed password as hex strings
-  return `${salt.toString('hex')}.${derivedKey.toString('hex')}`;
+  // Generate a salt and hash the password
+  const salt = await bcrypt.genSalt(BCRYPT_ROUNDS);
+  return bcrypt.hash(password, salt);
 }
 
 /**
- * Verify a password against a hash
+ * Verify a password against a stored hash
+ * 
+ * @param password Plain text password to verify
+ * @param hashedPassword Hashed password to compare against
+ * @returns True if password matches, false otherwise
  */
 async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  // Split the stored hash into salt and hash components
-  const [saltHex, hashHex] = hashedPassword.split('.');
-  if (!saltHex || !hashHex) {
-    throw new Error('Invalid password hash format');
-  }
-  
-  const salt = Buffer.from(saltHex, 'hex');
-  const hash = Buffer.from(hashHex, 'hex');
-  
-  // Hash the input password with the stored salt - convert password to Buffer
-  const passwordBuffer = Buffer.from(password, 'utf-8');
-  const derivedKey = await scryptAsync(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
-  
-  // Compare the derived key with the stored hash using a constant-time comparison
-  return crypto.timingSafeEqual(derivedKey, hash);
+  // Compare the input password with the stored hash
+  // bcrypt.compare uses a constant-time comparison to prevent timing attacks
+  return bcrypt.compare(password, hashedPassword);
 }
+
 // JWT configuration - ensure it's always set or throw an error
 const JWT_SECRET = process.env.JWT_SECRET as string;
 // This check ensures the JWT_SECRET is set at runtime and communicates to TypeScript that it's non-null
