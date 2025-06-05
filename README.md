@@ -1,6 +1,6 @@
 # Full-Stack TypeScript Template
 
-AI-ready template for rapid full-stack TypeScript application development.
+AI-ready template for rapid full-stack TypeScript application development. Created using Moxby (https://moxby.com).
 
 ## Tech Stack
 
@@ -211,11 +211,3 @@ By consistently applying these principles, AI-generated code will be more reliab
 
 -   **Purpose**: Ensures `JWT_SECRET` exists in `.env` for web container environments, generating one if absent.
 -   **Trigger**: Runs via `npm run webcontainer`.
-
-## Contributing
-
-Open an issue or pull request for contributions.
-
-## License
-
-MIT Licensed.

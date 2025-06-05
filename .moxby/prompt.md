@@ -10,7 +10,7 @@ By default, this template supports JSX syntax with Tailwind CSS classes, the sha
 
 Use stock photos from Pexels where appropriate, only valid URLs you know exist.
 
-Please follow the design instructions below:
+Please follow the design instructions below when creating components and pages, unless the user requests otherwise:
 
 <design_instructions>
   When creating designs or UIs for applications, follow thee guidelines indefinitely this is non-negotiable. Understand that there is a basic starter package and simple UI implementation to begin with, so you'll need to modify those files with these design instructions in mind:
