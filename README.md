@@ -113,6 +113,8 @@ AI-ready template for rapid full-stack TypeScript application development. Creat
 
 -   **Test Across Databases**: If your application *must* support multiple databases and involves complex queries, test thoroughly against each target system.
 
+-  **Seeding**: Abpve instructions apply to seeding as well. Use Knex.js for all database interactions in seeds.
+
 ### Webcontainer-Friendly Packages
 
 -   **Principle**: Strictly avoid native Node.js modules. Prefer pure JS or WASM-compatible packages.
@@ -173,7 +175,10 @@ To facilitate the creation of robust and bug-free features using this template, 
     *   **Action:**
         *   Clearly distinguish between value and type imports/exports: use `export type` and `import type` for type-only constructs.
         *   **Always include the `.js` file extension** in relative import paths (e.g., `from './myModule.js'`) as required by Node.js ESM.
-        *   Verify that all imported entities are explicitly exported from their source modules.
+        *   Verify that all imported entities are explicitly exported from their source modules. To prevent "does not provide an export named '...'" errors:
+            *   Double-check that the function, class, variable, or type is actually exported from the source file (`export { itemName }` or `export default itemName`).
+            *   Ensure the exported name exactly matches the imported name (case-sensitive).
+            *   If using TypeScript, confirm that the compilation process (`tsc`) is correctly generating the JavaScript output file (`.js`) with the intended exports. Check the `dist` folder or relevant output directory.
 
 3.  **Configuration Accuracy (`tsconfig.json`, etc.):**
     *   **Principle:** Project compilation and runtime behavior are critically dependent on correct configuration.
@@ -209,6 +214,14 @@ To facilitate the creation of robust and bug-free features using this template, 
         *   For nullable foreign keys, explicitly pass `null` if no association is intended, rather than relying on default database behavior if unsure.
         *   Be aware of cascading operations (e.g., `ON DELETE CASCADE`) defined in migrations and their implications.
         *   When generating seed data, ensure the order of insertion respects dependencies (e.g., create users before creating tasks that reference those users).
+
+10. **Idempotent Database Migrations:**
+    *   **Principle:** Database migrations should be written in a way that they can be run multiple times without causing errors or unintended side effects. This is crucial for environments where migrations might be re-run or applied to databases in varying states.
+    *   **Action:**
+        *   Before attempting to create a table, check if it already exists (e.g., `if (!(await knex.schema.hasTable('tableName'))) { ... }`).
+        *   Before adding a column to a table, check if the column already exists (e.g., `if (!(await knex.schema.hasColumn('tableName', 'columnName'))) { ... }`).
+        *   Similarly, check for the existence of indexes, foreign key constraints, or other schema elements before attempting to create them.
+        *   In the `down` function of a migration, perform corresponding checks before attempting to drop elements (e.g., drop column only if it exists).
 
 By consistently applying these principles, AI-generated code will be more reliable, easier to debug, and better aligned with the project's architecture.
 
