@@ -1,11 +1,67 @@
 import db from '../database.js';
-import { hash, compare } from 'bcryptjs';
+import crypto from 'crypto';
+import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
 
-// Number of salt rounds for bcrypt
-const SALT_ROUNDS = 12;
-// JWT secret - in a real app, this should be in environment variables
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Crypto configuration for password hashing with scrypt
+// These parameters directly affect security and performance
+const SCRYPT_KEYLEN = 64; // Length of the derived key
+const SCRYPT_SALT_SIZE = 16; // 16 bytes = 128 bits for the salt
+const SCRYPT_OPTIONS = {
+  N: process.env.NODE_ENV === 'production' ? 32768 : 16384, // CPU/memory cost factor (higher is more secure but slower)
+  r: 8, // Block size factor
+  p: 1, // Parallelization factor
+  maxmem: 128 * 1024 * 1024 // 128MB memory limit
+};
+
+// Promisify crypto functions
+const randomBytes = promisify(crypto.randomBytes);
+// Properly type the promisified scrypt function
+const scrypt = promisify<Buffer, Buffer, number, crypto.ScryptOptions, Buffer>(crypto.scrypt);
+
+/**
+ * Hash a password using the scrypt key derivation function
+ * Format: salt.hash where both are stored as hex strings
+ */
+async function hashPassword(password: string): Promise<string> {
+  // Generate a random salt
+  const salt = await randomBytes(SCRYPT_SALT_SIZE);
+  
+  // Hash the password with the salt using scrypt - convert password to Buffer
+  const passwordBuffer = Buffer.from(password, 'utf-8');
+  const derivedKey = await scrypt(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
+  
+  // Return the salt and hashed password as hex strings
+  return `${salt.toString('hex')}.${derivedKey.toString('hex')}`;
+}
+
+/**
+ * Verify a password against a hash
+ */
+async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  // Split the stored hash into salt and hash components
+  const [saltHex, hashHex] = hashedPassword.split('.');
+  if (!saltHex || !hashHex) {
+    throw new Error('Invalid password hash format');
+  }
+  
+  const salt = Buffer.from(saltHex, 'hex');
+  const hash = Buffer.from(hashHex, 'hex');
+  
+  // Hash the input password with the stored salt - convert password to Buffer
+  const passwordBuffer = Buffer.from(password, 'utf-8');
+  const derivedKey = await scrypt(passwordBuffer, salt, SCRYPT_KEYLEN, SCRYPT_OPTIONS);
+  
+  // Compare the derived key with the stored hash using a constant-time comparison
+  return crypto.timingSafeEqual(derivedKey, hash);
+}
+// JWT configuration - ensure it's always set or throw an error
+const JWT_SECRET = process.env.JWT_SECRET as string;
+// This check ensures the JWT_SECRET is set at runtime and communicates to TypeScript that it's non-null
+if (!JWT_SECRET) {
+  // No fallbacks - always throw an error if JWT_SECRET is missing
+  throw new Error('JWT_SECRET environment variable must be set. Please add it to your .env file.');
+}
 const JWT_EXPIRES_IN = '24h';
 
 /**
@@ -78,8 +134,8 @@ export async function registerUser(userData: UserRegistration): Promise<SafeUser
     throw new Error('Username already taken');
   }
   
-  // Hash the password
-  const password_hash = await hash(password, SALT_ROUNDS);
+  // Hash the password with our secure crypto implementation
+  const password_hash = await hashPassword(password);
   
   // Insert the new user
   const [newUser] = await db<User>('users')
@@ -109,8 +165,8 @@ export async function loginUser(credentials: UserLogin): Promise<{ user: SafeUse
     throw new Error('Invalid email or password');
   }
   
-  // Compare password with hash
-  const isPasswordValid = await compare(password, user.password_hash);
+  // Verify password using our secure crypto implementation
+  const isPasswordValid = await verifyPassword(password, user.password_hash);
   
   if (!isPasswordValid) {
     throw new Error('Invalid email or password');
@@ -142,13 +198,30 @@ export async function getUserById(id: number): Promise<SafeUser | undefined> {
 }
 
 /**
+ * Interface for JWT token payload
+ */
+interface JwtPayload {
+  userId: number;
+  email: string;
+  iat?: number;
+  exp?: number;
+}
+
+/**
  * Verifies a JWT token and returns the decoded payload
  * @param token JWT token to verify
  * @returns The decoded token payload or null if invalid
  */
-export function verifyToken(token: string): { userId: number; email: string } | null {
+export function verifyToken(token: string): JwtPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string };
+    // Properly type the decoded token and ensure JWT_SECRET is treated as a non-null string
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    
+    // Validate that the expected fields exist
+    if (typeof decoded !== 'object' || !decoded.userId || !decoded.email) {
+      return null;
+    }
+    
     return decoded;
   } catch (error) {
     return null;

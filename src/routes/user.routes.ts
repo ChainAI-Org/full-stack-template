@@ -39,11 +39,24 @@ export default async function userRoutes(fastify: FastifyInstance, opts: Fastify
       
       reply.status(201).send({ user: newUser });
     } catch (error) {
+      // Handle known business logic errors
       if (error instanceof Error) {
         if (error.message === 'Email already in use' || error.message === 'Username already taken') {
           return reply.status(409).send({ error: error.message });
         }
+        
+        // Log the full error in development to help with debugging
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('Registration error:', error);
+          return reply.status(500).send({ 
+            error: 'Registration failed', 
+            message: error.message,
+            stack: error.stack 
+          });
+        }
       }
+      
+      // Generic error for production
       reply.status(500).send({ error: 'Registration failed' });
     }
   });

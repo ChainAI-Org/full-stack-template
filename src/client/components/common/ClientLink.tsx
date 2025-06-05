@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 
 // Define our own props type instead of importing LinkProps
 type ClientLinkProps = {

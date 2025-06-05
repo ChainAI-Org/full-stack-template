@@ -18,29 +18,17 @@ interface TaskIdParam {
 
 export default async function taskRoutes(fastify: FastifyInstance, opts: FastifyPluginOptions) {
   // GET all tasks - authenticated route gets user's tasks
-  fastify.get('/', async (req: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/', { 
+    // Use the preHandler hook for authentication instead of manual auth check
+    preHandler: requireAuth 
+  }, async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-      let tasks;
-      // Check if request has authentication
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        // Try to get the user's tasks if authenticated
-        try {
-          await requireAuth(req, reply);
-          if (req.user?.id) {
-            tasks = await getAllTasks(req.user.id);
-          }
-        } catch (e) {
-          return reply.status(401).send({ error: 'Authentication required' });
-        }
-      } else {
-        // No auth header, return error for this endpoint
-        return reply.status(401).send({ error: 'Authentication required' });
-      }
-      
-      reply.send(tasks || []);
+      // At this point, authentication has already been verified by the preHandler hook
+      // and req.user is guaranteed to exist
+      const tasks = await getAllTasks(req.user!.id);
+      return reply.send(tasks);
     } catch (error) {
-      reply.status(500).send({ error: 'Failed to retrieve tasks' });
+      return reply.status(500).send({ error: 'Failed to retrieve tasks' });
     }
   });
 

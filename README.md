@@ -277,20 +277,42 @@ export default function About() {
 
 This project is designed to run smoothly in web container environments like StackBlitz or CodeSandbox.
 
+### Environment Variables
+
+For web containers, required environment variables are automatically set using one of these methods:
+
+1. **Using the `webcontainer` script**:
+   ```bash
+   npm run webcontainer
+   ```
+   This script automatically generates secure JWT and cookie secrets and stores them in the .env file.
+
+2. **Manual Setup**:
+   Ensure your .env file contains the following secrets:
+   ```
+   JWT_SECRET=your_secure_jwt_secret
+   COOKIE_SECRET=your_secure_cookie_secret
+   ```
+   
+**Important**: The application will throw an error if these secrets are missing - this is by design to prevent security issues.
+
 ### Password Hashing
 
-To ensure compatibility with web containers that restrict native addons:
+This project uses Node.js built-in cryptography for secure password hashing:
 
 ```ts
-// Instead of native bcrypt (causes ERR_DLOPEN_DISABLED in web containers):  
-import { hash, compare } from 'bcrypt';
+// No external dependencies needed for password hashing
+import crypto from 'crypto';
+import { promisify } from 'util';
 
-// Using pure JS bcryptjs (web container compatible):  
-import { hash, compare } from 'bcryptjs';
+// Using Node.js native crypto with scrypt for password hashing
+const scrypt = promisify(crypto.scrypt);
 ```
 
-- **bcryptjs**: Uses pure JavaScript implementation instead of native `bcrypt` to avoid `ERR_DLOPEN_DISABLED` errors
-- **Same API**: Identical functions (`hash`, `compare`) as the native version
+- **Built-in security**: Uses Node's native `crypto` module with `scrypt` algorithm
+- **No native addons**: Avoids dependency issues in web containers
+- **Modern approach**: Follows current best practices for password security
+- **Zero external dependencies**: Reduces package size and potential vulnerabilities
 
 ### SSR Compatibility
 
