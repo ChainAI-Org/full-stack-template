@@ -2,11 +2,11 @@
   "type": "module",
   "scripts": {
     "lint": "oxlint",
-    "dev": "tsx src/scripts/db-setup.ts && tsx src/server.ts --dev",
+    "dev": "npm run db:migrate:latest && tsx src/scripts/db-setup.ts && tsx src/server.ts --dev",
     "webcontainer": "node webcontainer-setup.js && npm run dev",
     "db:setup": "tsx src/scripts/db-setup.ts",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "build": "npm run db:setup && npm run build:client && npm run build:server",
+    "build": "npm run db:migrate:latest && npm run db:setup && npm run build:client && npm run build:server",
     "build:server": "tsc",
     "build:client": "cross-env NODE_ENV=production vite build",
     "clean": "rimraf dist tsconfig.tsbuildinfo",

@@ -77,6 +77,10 @@ AI-ready template for rapid full-stack TypeScript application development. Creat
 -   `npm run db:seed:make -- <name>`: Create seed.
 -   `npm run db:seed:run`: Run seeds.
 
+**Note on Development:**
+-   If you add **new migration files**, run `npm run db:migrate:latest`.
+-   If you add **new seed files** run `npm run db:seed:run`.
+
 ### Database-Agnostic Queries
 
 -   **Core Principle**: Strive to write SQL queries that are as portable as possible across different database systems (SQLite, PostgreSQL, MySQL). This ensures flexibility and reduces vendor lock-in.
@@ -197,6 +201,14 @@ To facilitate the creation of robust and bug-free features using this template, 
         *   Return error details in a structured format (e.g., JSON with `error` and `message` fields: `{"error": "Validation Error", "message": "Email is required."}`).
         *   Avoid exposing sensitive information in error responses. Stack traces may be included in development/non-production environments for debugging purposes but MUST be suppressed in production environments.
         *   Ensure a consistent error response structure across all API endpoints.
+
+9.  **Database Integrity and Foreign Key Handling:**
+    *   **Principle:** Maintain data integrity by respecting all database constraints, especially foreign key relationships.
+    *   **Action:**
+        *   When inserting or updating records with foreign key columns, ensure the referenced record in the parent table exists. If it might not, query for it first or handle potential database errors gracefully.
+        *   For nullable foreign keys, explicitly pass `null` if no association is intended, rather than relying on default database behavior if unsure.
+        *   Be aware of cascading operations (e.g., `ON DELETE CASCADE`) defined in migrations and their implications.
+        *   When generating seed data, ensure the order of insertion respects dependencies (e.g., create users before creating tasks that reference those users).
 
 By consistently applying these principles, AI-generated code will be more reliable, easier to debug, and better aligned with the project's architecture.
 

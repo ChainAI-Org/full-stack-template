@@ -8,16 +8,16 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SETUP_MARKER_FILE = path.join(__dirname, '..', '..', '.db-setup-complete'); // Points to project root
 
-async function checkIfMigrationsNeeded() {
-  // Check if marker file exists
+async function checkIfInitialSeedingNeeded() {
+  // Check if marker file exists, indicating initial seeding has been done
   if (fs.existsSync(SETUP_MARKER_FILE)) {
-    // Temporarily force migrations to run regardless of marker file
-    console.log('Forcing database migrations to run...');
-    return true;
+    console.log('Initial database seeding already completed (marker file found). Skipping.');
+    return false; // Seeding not needed
   }
   
-  // Otherwise, we need to run migrations and seeds
-  return true;
+  // Otherwise, initial seeding is required
+  console.log('Initial database seeding required (marker file not found).');
+  return true; // Seeding needed
 }
 
 async function markSetupComplete() {
@@ -28,18 +28,15 @@ async function markSetupComplete() {
 
 async function main() {
   try {
-    const setupNeeded = await checkIfMigrationsNeeded();
+    const initialSeedingNeeded = await checkIfInitialSeedingNeeded();
     
-    if (setupNeeded) {
-      console.log('Running database migrations and seeds...');
+    if (initialSeedingNeeded) {
+      console.log('Running initial database seeds...');
       
       // Initialize knex with our config
       const db = knex(config);
       
-      // Run migrations
-      console.log('Running migrations...');
-      await db.migrate.latest();
-      
+      // Migrations are now run separately by npm scripts.
       // Run seeds
       console.log('Running seeds...');
       await db.seed.run();
