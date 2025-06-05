@@ -115,6 +115,15 @@ AI-ready template for rapid full-stack TypeScript application development.
 -   **Check**: Package documentation for browser/webcontainer compatibility.
 -   **Internal Example**: `webcontainer-setup.js` uses Node.js `crypto` for one-time secret generation; `@fastify/cookie` is used without a secret to avoid native crypto dependencies at runtime.
 
+
+### Code Organization Principles
+
+-   **Modularity**: Break down features and components into smaller, focused files.
+    -   **Benefits**: Improves readability, maintainability, and testability. Makes it easier for multiple developers (and AI agents) to work on different parts of the codebase concurrently.
+    -   **Example**: For backend logic, within a file like `src/routes/user.routes.ts`, a route handler for creating a user should be concise. It might call a dedicated function from a service or action file, for example, `src/services/user/createUserHandler.ts` or `src/actions/user/processUserCreation.ts`. This keeps route files focused on routing and request/response marshalling, while the dedicated files handle specific business logic. For UI, a complex page component, perhaps `src/client/pages/UserProfilePage.tsx` (if you adopt a `pages` directory structure under `src/client/`), would be better composed of smaller, focused components from `src/client/components/user/` like `ProfileHeader.tsx` and `ActivityFeed.tsx`, each in their own file.
+-   **Single Responsibility Principle (SRP)**: Each file or module should ideally have one primary responsibility.
+-   **Clear Naming**: Use descriptive names for files and directories that clearly indicate their purpose or the feature they relate to.
+
 ## Core Features & Configuration
 
 ### Authentication
@@ -146,6 +155,38 @@ AI-ready template for rapid full-stack TypeScript application development.
 1.  Create component in `src/client/pages/` (e.g., `MyPage.tsx`).
 2.  Export `default` component and optional `getServerSideProps` / `getMeta`.
 3.  Routes are automatically detected from this directory by `server.ts`.
+
+### Best Practices for Development
+
+To facilitate the creation of robust and bug-free features using this template, You should adhere to the following core TypeScript and Node.js ESM development principles:
+
+1.  **Strict Type Safety & Adherence:**
+    *   **Principle:** Leverage TypeScript's static typing to its fullest. Avoid `any` where possible; prefer specific types or `unknown` with type guards.
+    *   **Action:** Consistently define and use clear interfaces and types for all data structures, function signatures, and component props.
+
+2.  **ESM Module Integrity:**
+    *   **Principle:** Ensure correct ECMAScript Module (ESM) syntax and resolution.
+    *   **Action:**
+        *   Clearly distinguish between value and type imports/exports: use `export type` and `import type` for type-only constructs.
+        *   **Always include the `.js` file extension** in relative import paths (e.g., `from './myModule.js'`) as required by Node.js ESM.
+        *   Verify that all imported entities are explicitly exported from their source modules.
+
+3.  **Configuration Accuracy (`tsconfig.json`, etc.):**
+    *   **Principle:** Project compilation and runtime behavior are critically dependent on correct configuration.
+    *   **Action:** Ensure `tsconfig.json` settings (especially `module`, `moduleResolution`, `target`, `strict`) are appropriate for an ESM Node.js environment. Be mindful of other project configurations (e.g., ESLint, Prettier).
+
+4.  **Robust Asynchronous Operations:**
+    *   **Principle:** Properly manage all asynchronous operations to prevent unhandled promise rejections and ensure predictable control flow.
+    *   **Action:** Consistently use `async/await` for promise-based operations and include comprehensive `try/catch` blocks or `.catch()` handlers for error management.
+
+5.  **Code Modularity and Single Responsibility:**
+    *   **Guidance:** Strictly follow the "Code Organization Principles" (detailed earlier) to ensure modularity and single responsibility in all generated code.
+
+6.  **API and Dependency Contract Adherence:**
+    *   **Principle:** External libraries and internal modules have defined APIs (contracts).
+    *   **Action:** When using dependencies or calling other modules, strictly adhere to their documented API signatures and expected data types.
+
+By consistently applying these principles, AI-generated code will be more reliable, easier to debug, and better aligned with the project's architecture.
 
 ## Server-Side Rendering (SSR) & Routing
 
