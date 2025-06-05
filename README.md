@@ -113,7 +113,7 @@ AI-ready template for rapid full-stack TypeScript application development.
 
 -   **Principle**: Strictly avoid native Node.js modules. Prefer pure JS or WASM-compatible packages.
 -   **Check**: Package documentation for browser/webcontainer compatibility.
--   **Internal Example**: `webcontainer-setup.js` uses Node.js `crypto` for one-time secret generation; `@fastify/cookie` is used without a secret to avoid native crypto dependencies at runtime.
+-   **Internal Example**: used bycryptjs instead of bcrypt because bcrypt is native Node.js module
 
 
 ### Code Organization Principles
@@ -156,9 +156,9 @@ AI-ready template for rapid full-stack TypeScript application development.
 2.  Export `default` component and optional `getServerSideProps` / `getMeta`.
 3.  Routes are automatically detected from this directory by `server.ts`.
 
-### Best Practices for Development
+### Best Practices for AI-Driven Development
 
-To facilitate the creation of robust and bug-free features using this template, You should adhere to the following core TypeScript and Node.js ESM development principles:
+To facilitate the creation of robust and bug-free features using this template, you should adhere to the following core TypeScript and Node.js ESM development principles:
 
 1.  **Strict Type Safety & Adherence:**
     *   **Principle:** Leverage TypeScript's static typing to its fullest. Avoid `any` where possible; prefer specific types or `unknown` with type guards.
@@ -185,6 +185,10 @@ To facilitate the creation of robust and bug-free features using this template, 
 6.  **API and Dependency Contract Adherence:**
     *   **Principle:** External libraries and internal modules have defined APIs (contracts).
     *   **Action:** When using dependencies or calling other modules, strictly adhere to their documented API signatures and expected data types.
+
+7.  **Dependency Management Diligence:**
+    *   **Principle:** Ensure all external packages are explicitly declared in `package.json` before use.
+    *   **Action:** Before importing or using an external package, verify its presence in `package.json`. If missing, add it using the appropriate npm/yarn/pnpm command (e.g., `npm install <package-name> --save` or `npm install <package-name> --save-dev`) and ensure the `package.json` and any lock files are updated.
 
 By consistently applying these principles, AI-generated code will be more reliable, easier to debug, and better aligned with the project's architecture.
 
