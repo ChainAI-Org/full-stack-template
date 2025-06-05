@@ -1,41 +1,29 @@
 import * as React from 'react';
+import { Link as ReactRouterLink, type LinkProps as ReactRouterLinkProps } from 'react-router';
 
-// Define our own props type instead of importing LinkProps
-type ClientLinkProps = {
+// Define our props type, extending React Router's LinkProps but ensuring our 'to' prop flexibility
+// Omit 'to' from ReactRouterLinkProps to redefine it with our specific type.
+// Include other LinkProps like 'reloadDocument', 'replace', 'state', 'preventScrollReset'.
+interface ClientLinkProps extends Omit<ReactRouterLinkProps, 'to'> {
   to: string | { pathname: string; search?: string; hash?: string };
-  className?: string;
   children: React.ReactNode;
+  // Allow any other props to be passed through, e.g., aria-attributes
   [key: string]: any;
-};
+}
 
 /**
- * SSR-safe Link component that prevents "Cannot destructure property 'basename'" errors
- * during server-side rendering by always rendering regular anchor tags.
- * 
- * Instead of using conditional rendering (which causes hydration mismatches),
- * we always render an anchor tag with an onClick handler that uses React Router
- * navigation when available.
+ * ClientLink component that wraps react-router-dom's Link component.
+ * This aims to provide a consistent Link component that works correctly
+ * with the project's SSR setup.
  */
 export function ClientLink(props: ClientLinkProps) {
-  // Extract non-DOM props to avoid passing them to the DOM element
-  const { to, children, className, ...rest } = props;
-  
-  // For consistency between client and server, always use an anchor tag
+  const { to, children, ...rest } = props;
+
+  // The 'to' prop for ReactRouterLink can be a string or a Partial<Path>
+  // Our 'to' prop type is compatible.
   return (
-    <a
-      href={typeof to === 'string' ? to : '#'}
-      className={className}
-      onClick={(e) => {
-        e.preventDefault();
-        // Handle client-side navigation if we're in a browser
-        if (typeof window !== 'undefined') {
-          // We can use window.location directly since Link isn't available during SSR
-          window.location.href = typeof to === 'string' ? to : to.pathname + (to.search || '') + (to.hash || '');
-        }
-      }}
-      {...rest}
-    >
+    <ReactRouterLink to={to} {...rest}>
       {children}
-    </a>
+    </ReactRouterLink>
   );
 }

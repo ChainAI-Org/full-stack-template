@@ -30,7 +30,6 @@ const setupEnv = () => {
     
     // Generate secure secrets
     const jwtSecret = generateSecret();
-    const cookieSecret = generateSecret();
     
     // Default environment content
     let envContent = '';
@@ -43,7 +42,6 @@ const setupEnv = () => {
       // Split into lines for easier manipulation
       const lines = envContent.split('\n');
       let jwtSet = false;
-      let cookieSet = false;
       
       // Process each line to find and replace JWT_SECRET and COOKIE_SECRET
       for (let i = 0; i < lines.length; i++) {
@@ -53,12 +51,6 @@ const setupEnv = () => {
           jwtSet = true;
           console.log('✅ Updated JWT_SECRET with a secure value');
         }
-        if (lines[i].startsWith('COOKIE_SECRET=')) {
-          // Replace line with the new COOKIE_SECRET
-          lines[i] = `COOKIE_SECRET=${cookieSecret}`;
-          cookieSet = true;
-          console.log('✅ Updated COOKIE_SECRET with a secure value');
-        }
       }
       
       // Add secrets if they don't exist in the file
@@ -66,11 +58,6 @@ const setupEnv = () => {
         lines.push('\n# Authentication secrets');
         lines.push(`JWT_SECRET=${jwtSecret}`);
         console.log('✅ Added JWT_SECRET to .env file');
-      }
-      if (!cookieSet) {
-        if (!jwtSet) lines.push('# Authentication secrets');
-        lines.push(`COOKIE_SECRET=${cookieSecret}`);
-        console.log('✅ Added COOKIE_SECRET to .env file');
       }
       
       // Reassemble the .env content
@@ -83,7 +70,6 @@ DATABASE_CLIENT=sqlite3
 
 # Authentication secrets
 JWT_SECRET=${jwtSecret}
-COOKIE_SECRET=${cookieSecret}
 `;
     }
   
@@ -91,15 +77,14 @@ COOKIE_SECRET=${cookieSecret}
     writeFileSync(envPath, envContent);
     
     console.log('✅ Environment setup complete!');
-    console.log('🔑 JWT_SECRET and COOKIE_SECRET have been generated');
+    console.log('🔑 JWT_SECRET has been generated');
     
     // Also set these in process.env for immediate use
     process.env.JWT_SECRET = jwtSecret;
-    process.env.COOKIE_SECRET = cookieSecret;
     
     // Optional: Force log the values for debugging
     console.log(`JWT_SECRET set to: ${jwtSecret.substring(0, 3)}...${jwtSecret.substring(jwtSecret.length-3)}`);
-    console.log(`COOKIE_SECRET set to: ${cookieSecret.substring(0, 3)}...${cookieSecret.substring(cookieSecret.length-3)}`);
+    console.log('COOKIE_SECRET has been removed.');
     
   } catch (error) {
     console.error('❌ Error setting up environment variables:', error.message);

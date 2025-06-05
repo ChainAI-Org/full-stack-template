@@ -114,14 +114,21 @@ export async function registerUser(userData: UserRegistration): Promise<SafeUser
   // Hash the password with our secure crypto implementation
   const password_hash = await hashPassword(password);
   
-  // Insert the new user
-  const [newUser] = await db<User>('users')
-    .insert({
-      username,
-      email,
-      password_hash
-    })
-    .returning('*');
+  // Insert the new user into the database using a universal approach
+  // This works with both SQLite and PostgreSQL
+  await db<User>('users').insert({
+    username,
+    email,
+    password_hash
+  });
+  
+  // Fetch the newly inserted user
+  const newUser = await db<User>('users').where({ email }).first();
+  
+  // Ensure we have a valid user before converting to SafeUser
+  if (!newUser) {
+    throw new Error('Failed to create user');
+  }
   
   return toSafeUser(newUser);
 }

@@ -39,13 +39,28 @@ export async function getAllTasks(userId?: number): Promise<Task[]> {
  * @returns A promise that resolves to the newly created task.
  */
 export async function addTask(title: string, userId?: number): Promise<Task> {
-  const [newTask] = await db<Task>('tasks')
-    .insert({ 
-      title, 
-      completed: false,
+  // Insert the task using a universal approach that works with all database types
+  const taskData = { 
+    title, 
+    completed: false,
+    user_id: userId || null
+  };
+  
+  // Insert the task
+  await db<Task>('tasks').insert(taskData);
+  
+  // Fetch the newly inserted task
+  const newTask = await db<Task>('tasks')
+    .where({
+      title,
       user_id: userId || null
-    }) // created_at and updated_at will use defaultTo(knex.fn.now())
-    .returning('*');
+    })
+    .orderBy('created_at', 'desc')
+    .first();
+    
+  if (!newTask) {
+    throw new Error('Failed to create task');
+  }
   return newTask;
 }
 
@@ -90,7 +105,8 @@ export async function toggleTaskCompletion(id: number, userId?: number): Promise
     return undefined;
   }
 
-  const [updatedTask] = await db<Task>('tasks')
+  // Update the task
+  await db<Task>('tasks')
     .where({ id })
     // Only update if it belongs to the requesting user (or no user check if userId not provided)
     .modify(queryBuilder => {
@@ -101,8 +117,16 @@ export async function toggleTaskCompletion(id: number, userId?: number): Promise
     .update({
       completed: !task.completed,
       updated_at: db.fn.now(), // Explicitly update the updated_at timestamp
-    })
-    .returning('*');
+    });
   
+  // Fetch the updated task
+  const updatedTask = await db<Task>('tasks').where({ id }).first();
+  
+  if (!updatedTask) {
+    // This case should ideally not be reached if the initial task check was successful
+    // and the update operation didn't fail silently. 
+    // However, it's good practice to handle it.
+    throw new Error('Failed to update task or task not found after update');
+  }
   return updatedTask;
 }

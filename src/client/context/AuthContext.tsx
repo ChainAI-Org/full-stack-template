@@ -48,16 +48,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Check for existing session on component mount
   useEffect(() => {
-    // Try to get auth data from local storage
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
+    if (typeof window !== 'undefined') { // Check if running in a browser environment
+      // Try to get auth data from local storage
+      const storedUser = localStorage.getItem('user');
+      const storedToken = localStorage.getItem('token');
 
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
+      if (storedUser && storedToken) {
+        try {
+          setUser(JSON.parse(storedUser));
+          setToken(storedToken);
+        } catch (e) {
+          console.error("Failed to parse stored user data:", e);
+          // Optionally clear corrupted data
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+        }
+      }
     }
-    
-    setLoading(false);
+    setLoading(false); // Ensure loading is set to false regardless
   }, []);
 
   // Clear any error message

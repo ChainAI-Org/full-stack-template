@@ -9,14 +9,14 @@ A modern, production-ready full-stack TypeScript template designed for rapid app
 - **TypeScript**: Type-safe JavaScript for backend logic
 - **Knex.js**: SQL query builder with migrations and seeding
 - **JWT Authentication**: Secure, stateless authentication
-- **Cookie-based Sessions**: Persistent login support
+- **Cookie-based Sessions**: Persistent login support (JWTs stored in HTTP-only cookies)
 
 ### Frontend
 - **React 19**: Modern UI library with hooks and functional components
 - **TypeScript**: Type safety for frontend components
 - **Tailwind CSS v4**: Utility-first CSS with modern gradient syntax
 - **Vite**: Lightning-fast builds and hot module replacement
-- **React Router**: Client-side routing with history API
+- **React Router v7**: Server-side rendering compatible routing with @fastify/react
 
 ### Database
 - **SQLite** (default): Zero-configuration persistence
@@ -71,46 +71,18 @@ A modern, production-ready full-stack TypeScript template designed for rapid app
 - Node.js v18.x or higher
 - npm v8.x or higher (or equivalent package manager)
 
-### Installation
+### For Web Container Environments (e.g., StackBlitz, CodeSandbox)
 
-1. Clone the repository
-   ```bash
-   git clone <repository-url> my-app
-   cd my-app
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-
-3. Create environment configuration
-   ```bash
-   cp .env.example .env  # Then edit .env with your settings
-   ```
-
-4. Initialize the database
-   ```bash
-   npm run db:setup  # Runs migrations and seeds
-   ```
-
-5. Start development server
-   ```bash
-   npm run dev
-   ```
-   Access at http://localhost:3000
-
-### Production Build
-
-1. Build for production
-   ```bash
-   npm run build
-   ```
-
-2. Start production server
-   ```bash
-   npm run start
-   ```
+1.  **Clone or Open**: Fork the repository or open it directly in your preferred web container environment.
+2.  **Install Dependencies**: The environment will typically run `npm install` automatically. If not, run it in the terminal:
+    ```bash
+    npm install
+    ```
+3.  **Start the Application**: 
+    ```bash
+    npm run webcontainer
+    ```
+    This command handles all necessary environment setup (including `JWT_SECRET` generation via `webcontainer-setup.js` which updates the version-controlled `.env` file) and starts the development server. Access it at the URL provided by your web container.
 
 ## 🛠️ Development Workflow
 
@@ -141,7 +113,7 @@ The template includes a complete JWT-based authentication system:
 
 1. User registers or logs in
 2. Server validates credentials and issues JWT
-3. Token stored in HTTP-only cookie
+3. Token stored in an HTTP-only cookie
 4. React context manages user state
 5. Protected routes redirect unauthenticated users
 
@@ -291,7 +263,6 @@ For web containers, required environment variables are automatically set using o
    Ensure your .env file contains the following secrets:
    ```
    JWT_SECRET=your_secure_jwt_secret
-   COOKIE_SECRET=your_secure_cookie_secret
    ```
    
 **Important**: The application will throw an error if these secrets are missing - this is by design to prevent security issues.
@@ -316,38 +287,40 @@ const scrypt = promisify(crypto.scrypt);
 
 ### SSR Compatibility
 
-To prevent hydration mismatches and React Router errors during server-side rendering, we use a comprehensive approach:
+This project uses React Router v7 with `@fastify/react` for seamless server-side rendering (SSR) and client-side navigation. The implementation follows the official `fastify-vite/starters/react-typescript` pattern.
 
-#### 1. Client-Only Content Wrapper
+#### 1. React Router Integration
 
-A `ClientOnly` component prevents problematic components from rendering during SSR:
+We use components from `react-router` (not `react-router-dom`) for SSR compatibility:
 
 ```tsx
 // In src/client/root.tsx
-function ClientOnly({ children }) {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  return mounted ? children : <LoadingPlaceholder />;
-}
+import { Router, Routes, Route } from 'react-router';
+import { AppRoute } from '$app/core';
 
-// Usage
-<ClientOnly>
-  <Router>...</Router>
-</ClientOnly>
+export default function Root ({ url, routes, head, ctxHydration, routeMap }: any) {
+  return (
+    <Router location={url}>
+      <Routes>
+        {routes.map(({ path, component: Component }) => (
+          <Route key={path} path={path} element={
+            <AppRoute head={head} ctxHydration={ctxHydration} ctx={routeMap[path]}>
+              <Component />
+            </AppRoute>
+          } />
+        ))}
+      </Routes>
+    </Router>
+  );
+}
 ```
 
 #### 2. SSR-Safe Navigation Hook
 
-```tsx
-// Instead of this (causes SSR errors in web containers):  
-import { useNavigate } from 'react-router-dom';
-const navigate = useNavigate();
+For client-side navigation without React Router context dependencies:
 
-// Use this (SSR-safe):  
+```tsx
+// Instead of useNavigate from react-router-dom:  
 import { useClientNavigation } from './hooks/useClientNavigation';
 const navigate = useClientNavigation();
 
@@ -355,28 +328,28 @@ const navigate = useClientNavigation();
 navigate('/login'); // Uses History API + dispatches PopStateEvent
 ```
 
-#### 3. SSR-Safe Link Component
+#### 3. Link Component Usage
+
+Use `Link` from `react-router` for both SSR and client-side navigation:
 
 ```tsx
-// Instead of this (causes hydration mismatches and "basename" errors):  
-import { Link } from 'react-router-dom';
-<Link to="/some-path">Link Text</Link>
+// Import Link from react-router (not react-router-dom)
+import { Link } from 'react-router';
 
-// Use this (SSR-safe):  
-import { ClientLink } from './components/common/ClientLink';
-<ClientLink to="/some-path">Link Text</ClientLink>
+// Usage
+<Link to="/some-path">Link Text</Link>
 ```
 
 ### Implementation Details
 
-- **Hydration Handling**: The `ClientOnly` wrapper ensures all React Router related components are only rendered on the client, avoiding hydration mismatches
-- **History API**: The navigation hook uses the History API with `PopStateEvent` dispatch to maintain SPA behavior without full page reloads
-- **Consistent Rendering**: Links are rendered consistently between server and client to avoid hydration errors
-- **Graceful Fallbacks**: All components have fallback behaviors for non-browser environments
+- **@fastify/react Integration**: Uses the virtual modules and SSR context provided by `@fastify/react`
+- **React Router v7**: Uses `react-router` components that work with `@fastify/react`'s SSR context
+- **History API Fallback**: The navigation hook uses the History API when needed for non-router navigation
+- **Protected Routes**: Authentication-protected routes work seamlessly with SSR
 
-This approach prevents these common errors in web containers:
+This approach prevents these common errors:
+- "Cannot destructure property 'basename' of 'React.useContext(...)' as it is null"
 - "useNavigate() may be used only in the context of a Router component"
-- "Cannot destructure property 'basename' of undefined"
 - Hydration mismatch warnings and errors
 
 ## 📝 For AI Developers
@@ -389,6 +362,7 @@ This template is designed to be AI-friendly. Here are some tips for AI systems:
 4. **Authentication**: Use the existing auth context for protected features
 5. **API Pattern**: Follow RESTful patterns for API endpoints
 6. **Database Access**: Use the Knex.js query builder for database operations
+7. **React Router**: Import from `react-router` (not `react-router-dom`) for SSR compatibility
 
 ### AI Code Generation Recommendations
 

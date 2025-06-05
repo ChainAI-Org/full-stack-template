@@ -30,8 +30,8 @@ registerDecorators(server);
 await server.register(FastifyFormBody);
 
 // Register cookie support for authentication
+// Configure cookie plugin to work in all environments including webcontainers
 await server.register(FastifyCookie, {
-  secret: process.env.COOKIE_SECRET,
   hook: 'onRequest',
 });
 
@@ -47,9 +47,6 @@ await server.register(FastifyVite, {
 });
 
 await server.vite.ready();
-
-// server.decorate('todoList', ...) is removed. Client will fetch data from /api/tasks.
-// Old inline routes for /api/tasks are removed.
 
 const port = 3000;
 const host = '0.0.0.0';
