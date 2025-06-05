@@ -190,6 +190,14 @@ To facilitate the creation of robust and bug-free features using this template, 
     *   **Principle:** Ensure all external packages are explicitly declared in `package.json` before use.
     *   **Action:** Before importing or using an external package, verify its presence in `package.json`. If missing, add it using the appropriate npm/yarn/pnpm command (e.g., `npm install <package-name> --save` or `npm install <package-name> --save-dev`) and ensure the `package.json` and any lock files are updated.
 
+8.  **Standardized API Error Responses:**
+    *   **Principle:** API errors must be communicated clearly, consistently, and securely.
+    *   **Action:**
+        *   Utilize appropriate HTTP status codes (e.g., 400 for client errors, 500 for server errors).
+        *   Return error details in a structured format (e.g., JSON with `error` and `message` fields: `{"error": "Validation Error", "message": "Email is required."}`).
+        *   Avoid exposing sensitive information in error responses. Stack traces may be included in development/non-production environments for debugging purposes but MUST be suppressed in production environments.
+        *   Ensure a consistent error response structure across all API endpoints.
+
 By consistently applying these principles, AI-generated code will be more reliable, easier to debug, and better aligned with the project's architecture.
 
 ## Server-Side Rendering (SSR) & Routing
