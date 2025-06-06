@@ -23,7 +23,7 @@ const IconSpinner = (props: LucideProps) => (
 );
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'link' | 'glass';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   isLoading?: boolean;
   leftIcon?: ReactElement<LucideProps>;
@@ -52,7 +52,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const commonStyles =
-      'inline-flex items-center justify-center font-medium tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-brand-dark-bg focus-visible:ring-brand-accent-blue transition-all duration-fast ease-subtle select-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center font-medium tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-brand-dark-bg focus-visible:ring-brand-accent-blue transition-all duration-fast ease-subtle select-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed';
 
     const sizeStyles = {
       sm: 'px-3 py-1.5 text-xs rounded-sm leading-5',
@@ -63,15 +63,23 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        'bg-brand-accent-blue text-brand-accent-blue-textOnBlue hover:bg-brand-accent-blue/90 dark:bg-brand-accent-blue-darkBg dark:text-brand-accent-blue-textOnBlue dark:hover:bg-brand-accent-blue-darkBg/90 shadow-subtle hover:shadow-subtle-md disabled:shadow-none',
+        'bg-brand-accent-blue text-brand-accent-blue-textOnBlue hover:bg-brand-accent-blue/90 dark:bg-brand-accent-blue-darkBg dark:text-brand-light-surface dark:hover:bg-brand-accent-blue-darkBg/90 shadow-subtle hover:shadow-subtle-md disabled:shadow-none',
       secondary:
         'bg-brand-dark-surface text-brand-dark-text-primary hover:bg-brand-dark-border dark:bg-brand-light-surface dark:text-brand-light-text-primary dark:hover:bg-brand-light-border shadow-subtle hover:shadow-subtle-md disabled:shadow-none',
       outline:
-        'border border-brand-accent-blue text-brand-accent-blue hover:bg-brand-accent-blue hover:text-brand-accent-blue-textOnBlue dark:border-brand-accent-blue dark:text-brand-accent-blue dark:hover:bg-brand-accent-blue-darkBg dark:hover:text-white disabled:border-brand-dark-border disabled:text-brand-dark-text-tertiary',
+        'border border-brand-accent-blue text-brand-accent-blue hover:bg-brand-accent-blue hover:text-brand-light-surface dark:border-brand-accent-blue dark:text-brand-accent-blue dark:hover:bg-brand-accent-blue-darkBg dark:hover:text-white disabled:border-brand-dark-border disabled:text-brand-dark-text-tertiary',
       ghost:
         'text-brand-accent-blue hover:bg-brand-accent-blue/10 dark:text-brand-accent-blue dark:hover:bg-brand-accent-blue/10',
       link: 
         'text-brand-accent-blue hover:text-brand-accent-blue/90 dark:text-brand-accent-blue dark:hover:text-brand-accent-blue/90 underline-offset-4 hover:underline disabled:text-brand-dark-text-tertiary',
+      glass:
+        'transition-all duration-300 ease-in-out backdrop-blur-md shadow-lg border text-white \
+         bg-gradient-to-r from-[#3B82F6]/80 to-[#1D4ED8]/70 \
+         hover:from-[#3B82F6]/90 hover:to-[#1D4ED8]/80 \
+         border-[#60A5FA]/20 \
+         dark:bg-gradient-to-r dark:from-[#2563EB]/40 dark:to-[#1E40AF]/20 \
+         dark:hover:from-[#2563EB]/60 dark:hover:to-[#1E40AF]/40 \
+         dark:border-white/10 dark:text-white',
     };
 
     const iconSize = {

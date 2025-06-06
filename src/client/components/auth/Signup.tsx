@@ -132,7 +132,7 @@ export function Signup() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full"
+              className="w-full text-brand-light-surface"
               disabled={loading}
             >
               {loading ? 'Creating Account...' : 'Create Account'}

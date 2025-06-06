@@ -117,7 +117,7 @@ export default function TasksPage() {
             leftIcon={<PlusCircle size={18} className="dark:text-brand-dark-text-tertiary text-brand-light-text-tertiary"/>}
             aria-label="New task title"
           />
-          <Button type="submit" variant="primary" disabled={!newTaskTitle.trim()}>
+          <Button type="submit" variant="primary" className="w-40 h-10 text-brand-light-surface" disabled={!newTaskTitle.trim()}>
             Add Task
           </Button>
         </form>
@@ -169,7 +169,7 @@ export default function TasksPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => handleDeleteTask(task.id)}
-                  className="ml-2 opacity-50 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-subtle dark:text-brand-dark-text-tertiary hover:dark:text-brand-accent-red hover:text-brand-accent-red"
+                  className="ml-2 opacity-50 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-subtle dark:text-brand-light-surface hover:dark:text-brand-accent-red hover:text-brand-accent-red"
                   aria-label="Delete task"
                 >
                   <Trash2 size={18} />

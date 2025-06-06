@@ -46,7 +46,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((
       <div 
         className={cn(
           'relative flex items-center w-full',
-          'dark:bg-brand-dark-surface bg-brand-light-surface dark:border-brand-dark-border border-brand-light-border rounded-md shadow-subtle',
+          'dark:bg-brand-dark-surface dark:border bg-brand-light-surface dark:border-brand-dark-border border-brand-light-border rounded-md shadow-subtle',
           'transition-all duration-subtle ease-apple',
           'focus-within:ring-2 focus-within:ring-brand-accent-blue focus-within:border-brand-accent-blue',
           errorMessage ? 'border-brand-accent-red focus-within:ring-brand-accent-red focus-within:border-brand-accent-red' : 'dark:hover:border-brand-dark-text-tertiary hover:border-brand-light-text-tertiary',

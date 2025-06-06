@@ -36,9 +36,13 @@ body {
 
 /* Basic styling for links - can be customized further with brand colors */
 a {
-  @apply text-brand-accent-blue hover:text-brand-accent-blue/90 dark:hover:text-brand-accent-blue/80 transition-colors duration-fast ease-subtle;
+  /* @apply text-brand-accent-blue hover:text-brand-accent-blue/90 dark:hover:text-brand-accent-blue/80 transition-colors duration-fast ease-subtle; */
   /* Consider removing default font-weight bold if not desired globally */
 }
+
+/* button {
+  @apply text-brand-accent-blue hover:text-brand-accent-blue/90 dark:hover:text-brand-accent-blue/80 transition-colors duration-fast ease-subtle;
+} */
 
 /* General text elements - rely on Tailwind's typography utilities */
 p {

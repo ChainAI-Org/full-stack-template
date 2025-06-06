@@ -9,7 +9,7 @@ import { Menu, X, LogOut, UserCircle, Sun, Moon, LayoutDashboard, CheckSquare } 
 import { Button } from '../common/Button'; // Import the new Button
 
 // TODO: Replace with actual logo component or SVG
-const Logo = () => (
+const Logo = ({ isScrolled }: { isScrolled: boolean }) => (
   <Link to="/" className="flex items-center space-x-2 group">
     <svg 
       width="32" 
@@ -23,7 +23,7 @@ const Logo = () => (
       <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
-    <span className="text-2xl font-semibold text-brand-light-text-primary dark:text-brand-dark-text-primary group-hover:text-brand-accent-blue dark:group-hover:text-brand-accent-blue transition-colors duration-subtle">
+    <span className={`text-2xl font-semibold transition-colors duration-subtle ${isScrolled ? 'text-brand-light-surface' : 'text-brand-light-text-primary dark:text-brand-dark-text-primary'} group-hover:text-brand-accent-blue dark:group-hover:text-brand-accent-blue`}>
       TaskForge
     </span>
   </Link>
@@ -68,7 +68,7 @@ export function Header() {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <Logo />
+          <Logo isScrolled={isScrolled} />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-2">
@@ -78,7 +78,7 @@ export function Header() {
                 href={link.href} 
                 variant="ghost" 
                 size="md"
-                className="text-brand-dark-text-secondary hover:text-brand-dark-text-primary"
+                className={isScrolled ? "text-brand-light-surface": ""}
                 leftIcon={link.icon ? <link.icon size={18} /> : undefined}
               >
                 {link.label}
@@ -88,22 +88,22 @@ export function Header() {
 
           {/* Desktop Auth & Theme Toggle */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button onClick={toggleTheme} variant="ghost" size="icon" aria-label="Toggle theme">
+            <Button onClick={toggleTheme} variant="ghost" size="icon" aria-label="Toggle theme" className={isScrolled ? "text-brand-light-surface": ""}>
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
             {user ? (
               <>
-                <Button variant="ghost" size="md" className="text-brand-light-text-secondary dark:text-brand-dark-text-secondary hover:text-brand-light-text-primary dark:hover:text-brand-dark-text-primary">
+                <Button variant="ghost" size="md" className={isScrolled ? "text-brand-light-surface": ""}>
                   <UserCircle size={20} className="mr-2" /> {user.username}
                 </Button>
-                <Button onClick={handleLogout} variant="outline" size="md" leftIcon={<LogOut size={18}/>}>
+                <Button onClick={handleLogout} variant="outline" size="md" leftIcon={<LogOut size={18}/>} className={isScrolled ? "text-brand-light-surface bg-brand-accent-blue dark:bg-brand-dark-surface": ""}>
                   Log Out
                 </Button>
               </>
             ) : (
               <>
-                <Button href="/login" variant="ghost" size="md">Log In</Button>
-                <Button href="/signup" variant="primary" size="md">Sign Up</Button>
+                <Button href="/login" variant="ghost" size="md" className={isScrolled ? "text-brand-light-surface": ""}>Log In</Button>
+                <Button href="/signup" variant="primary" size="md" className={isScrolled ? "text-brand-light-surface bg-brand-accent-blue": "text-brand-light-surface"}>Sign Up</Button>
               </>
             )}
           </div>
@@ -119,7 +119,7 @@ export function Header() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-brand-dark-surface shadow-subtle-lg pb-4 border-t border-brand-dark-border">
+        <div className="md:hidden absolute top-full left-0 right-0 dark:bg-brand-dark-surface bg-brand-light-surface shadow-subtle-lg pb-4 border-t border-brand-dark-border">
           <nav className="flex flex-col space-y-2 px-4 pt-4">
             {navLinks.map((link) => (
               <Button 
@@ -127,7 +127,7 @@ export function Header() {
                 href={link.href} 
                 variant="ghost" 
                 size="lg"
-                className="w-full justify-start text-brand-dark-text-secondary hover:text-brand-dark-text-primary"
+                className="w-full justify-start"
                 leftIcon={link.icon ? <link.icon size={20} /> : undefined}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -138,7 +138,7 @@ export function Header() {
           <div className="mt-4 px-4 border-t border-brand-dark-border pt-4">
             {user ? (
               <div className="space-y-3">
-                 <Button variant="ghost" size="lg" className="w-full justify-start text-brand-dark-text-secondary">
+                 <Button variant="ghost" size="lg" className="w-full justify-start">
                   <UserCircle size={20} className="mr-2" /> {user.username}
                 </Button>
                 <Button onClick={handleLogout} variant="outline" size="lg" className="w-full justify-start" leftIcon={<LogOut size={20}/>}>
@@ -148,7 +148,7 @@ export function Header() {
             ) : (
               <div className="space-y-3">
                 <Button href="/login" variant="ghost" size="lg" className="w-full justify-start">Log In</Button>
-                <Button href="/signup" variant="primary" size="lg" className="w-full justify-start">Sign Up</Button>
+                <Button href="/signup" variant="primary" size="lg" className="w-full justify-start text-brand-light-surface">Sign Up</Button>
               </div>
             )}
              <Button onClick={toggleTheme} variant="ghost" size="lg" className="w-full justify-start mt-3" leftIcon={isDarkMode ? <Sun size={20} /> : <Moon size={20}/>}>

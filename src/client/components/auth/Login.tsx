@@ -105,7 +105,7 @@ export function Login() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full"
+              className="w-full text-brand-light-surface"
               disabled={loading}
               // isLoading={loading} // Assuming Button component supports an isLoading prop for a spinner
             >
