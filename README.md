@@ -133,6 +133,7 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 **Note on Development:**
 -   If you add **new migration files**, run `npm run db:migrate:latest`.
 -   If you add **new seed files** run `npm run db:seed:run`.
+-   **Running the Development Server (`npm run dev`)**: To maximize focused development time, it's recommended to run `npm run dev` only when a significant set of planned features (or all features for a given development cycle) are substantially implemented on both backend and frontend. This approach is generally more efficient than running the server continuously, reserving its use for comprehensive integration testing and UI/UX refinement phases after major coding efforts are complete.
 
 ### Example End-to-End Feature Workflow: Building '[Feature Name]'
 
