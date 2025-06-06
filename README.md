@@ -2,34 +2,6 @@
 
 AI-ready template for rapid full-stack TypeScript application development. Created using Moxby (https://moxby.com).
 
-## Common Issues & Key Reminders
-
-To ensure smooth development and avoid common pitfalls with this template, please keep the following in mind:
-
-*   **API Synchronization**: Always update frontend API calls (typically in `src/client/pages/` components or `src/client/fetch.ts`) after modifying backend API routes (`src/routes/`). (See details under "Adding API Endpoints")
-*   **ESM Import Paths (Backend)**: Remember to use full relative paths with `.js` extensions for JavaScript module imports in the backend (e.g., `import utils from './utils.js';`).
-*   **Database Migrations & Seeds**:
-    *   **Migration Naming & Order**: To ensure explicit and clear control over the execution sequence, this project uses **numerical prefixes** for migration filenames (e.g., `001_create_users.js`, `002_add_email_to_users.js`, `003_create_posts_table.js`) and you must do the same. Knex runs migrations in lexicographical (alphabetical/numerical) order based on these filenames.
-    *   When creating a new migration (e.g., `npm run db:migrate:make -- <name>`), you **must then edit the newly generated file** in `src/db/migrations/` to define your schema changes (e.g., creating tables, adding columns) using Knex.js syntax.
-    *   After defining the changes in the migration file, run `npm run db:migrate:latest` to apply them.
-    *   Similarly, after creating new seed files (e.g., `npm run db:seed:make -- <name>`), populate them with data and then run `npm run db:seed:run`. (Refer to "Key Scripts" for more details on commands).
-*   **Frontend Routing & Layouts**: Pages in `src/client/pages/` are auto-routed. Layouts are applied via `src/client/layouts/` and the `AppRoute` component.
-*   **TypeScript Type Imports**: Use `import type { MyType } from './myModule';` for type-only imports to ensure correct module handling.
-*   **Import/Export Matching**: Ensure your import style (e.g., `import { item } from './module'` for named exports, or `import item from './module'` for default exports) correctly matches how the item is exported from its source module.
-*   **Routing Package**: This project uses React Router v7 integrated via `@fastify/react` for SSR. Do **not** install or use `react-router-dom`; rely on the existing routing setup and page structure in `src/client/pages/`.
-*   **Focused Feature Development**: To ensure thoroughness and integration, aim to complete one feature (including both backend and frontend aspects) entirely before moving on to the next. This helps prevent context switching and ensures all parts of a feature are working together. See "Example End-to-End Feature Workflow" under "Development Workflow" for a detailed illustration.
-*   **Architectural Bedrock (Generally, do not modify these files)**: 
-    *   `vite.config.js`
-    *   `postcss.config.mjs`
-    *   `src/server.ts`
-    *   `src/client/root.tsx` (The entry point for the React application and core SSR hydration logic.)
-    *   `src/client/index.html`
-        *   `src/client/context.ts` (The SSR page context mechanism.)`
-        *   `src/knexfile.ts`
-        *   `src/database.ts`
-        *   `src/client/context/AuthContext.tsx` (Extending functionality is fine; altering the core token/user management logic requires care.)
-        *   `src/client/context/ThemeContext.tsx` (Extending functionality is fine; altering core theme switching requires care.)
-
 ## Tech Stack
 
 -   **Backend**: Fastify, TypeScript, Knex.js, JWT Auth (HTTP-only Cookies)
@@ -96,6 +68,8 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 
 ## Getting Started
 
+This section covers the initial one-time setup for the project.
+
 ### Prerequisites
 
 -   Node.js >=18.x
@@ -105,38 +79,57 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 
 1.  Open/Fork repository in web container (e.g., StackBlitz, CodeSandbox).
 2.  `npm install` (usually automatic).
-3.  `npm run webcontainer` (handles `.env` setup via `webcontainer-setup.js` & starts server).
+3.  `npm run webcontainer` (handles `.env` setup via `webcontainer-setup.js` & starts server for immediate use in this environment).
 
-### Local Development Setup
+## Core Development Workflow & Practices
 
-1.  Clone repository.
-2.  `npm install`.
-3.  Configure `.env` (present in repo):
-    -   **Update `JWT_SECRET`** with a strong, unique random string.
-    -   Set `DATABASE_CLIENT` (e.g., `sqlite3`, `pg`, `mysql2`) and connection details if not using default SQLite.
-4.  `npm run db:setup` (runs migrations & seeds).
-5.  `npm run dev`.
-
-## Development Workflow
+This section outlines the primary workflow, scripts, and practices for ongoing development.
 
 ### Key Scripts
 
--   `npm run dev`: Start dev server.
--   `npm run build`: Production build.
--   `npm run start`: Production server.
--   `npm run lint`: Lint code.
--   `npm run db:setup`: Initialize/reset database.
--   `npm run db:migrate:make -- <name>`: Create migration.
--   `npm run db:migrate:latest`: Run migrations.
--   `npm run db:seed:make -- <name>`: Create seed.
--   `npm run db:seed:run`: Run seeds.
+-   `npm run dev`: Start dev server (see note below on when to run).
+-   `npm run build`: Create a production build.
+-   `npm run start`: Run the production server.
+-   `npm run lint`: Lint and format code.
+-   `npm run db:setup`: Initialize/reset the database (runs all migrations and seeds).
+-   `npm run db:migrate:make -- <name>`: Create a new migration file.
+-   `npm run db:migrate:latest`: Apply pending migrations.
+-   `npm run db:seed:make -- <name>`: Create a new seed file.
+-   `npm run db:seed:run`: Run seed files.
 
-**Note on Development:**
--   If you add **new migration files**, run `npm run db:migrate:latest`.
--   If you add **new seed files** run `npm run db:seed:run`.
--   **Running the Development Server (`npm run dev`)**: To maximize focused development time, it's recommended to run `npm run dev` only when a significant set of planned features (or all features for a given development cycle) are substantially implemented on both backend and frontend. This approach is generally more efficient than running the server continuously, reserving its use for comprehensive integration testing and UI/UX refinement phases after major coding efforts are complete.
+### Guiding Principles for Development
 
-### Example End-to-End Feature Workflow: Building '[Feature Name]'
+*   **Focused Feature Development**: To ensure thoroughness and integration, aim to complete one feature (including both backend and frontend aspects, as outlined in the 'End-to-End Feature Workflow' below) entirely before moving on to the next. This helps prevent context switching and ensures all parts of a feature are working together.
+*   **Running the Development Server (`npm run dev`)**: To maximize focused development time, it's recommended to run `npm run dev` only when a all features for a given development cycle are implemented on both backend and frontend. This approach is generally more efficient than running the server continuously, reserving its use for comprehensive integration testing and UI/UX refinement phases after major coding efforts are complete.
+
+### Database Management
+
+*   **Creating & Naming Migrations**: 
+    *   To ensure explicit and clear control over the execution sequence, this project uses **numerical prefixes** for migration filenames (e.g., `001_create_users.js`, `002_add_email_to_users.js`). Knex runs migrations in lexicographical order based on these filenames.
+    *   If you need to generate a new migration file, use `npm run db:migrate:make -- <descriptive_name_for_migration>`.
+    *   **Crucial**: After generation, Knex creates a file with a timestamp prefix (e.g., `YYYYMMDDHHMMSS_descriptive_name_for_migration.js`). **You must rename this file** to follow the numerical prefix convention (e.g., `003_descriptive_name_for_migration.js`), ensuring the number correctly places it in the desired execution order.
+    *   Populate the `up` and `down` methods in the newly created (and renamed) migration file in `src/db/migrations/` with the correct Knex.js code to implement your schema changes.
+*   **Managing Seeds**: 
+    *   Generate seed files using `npm run db:seed:make -- <descriptive_name_for_seed>`.
+    *   Populate the new seed file in `src/db/seeds/` with data.
+*   **Database-Agnostic Queries**:
+    *   **Core Principle**: Strive to write SQL queries that are as portable as possible across different database systems (SQLite, PostgreSQL, MySQL). This ensures flexibility and reduces vendor lock-in.
+    *   **Common Pitfall: `RETURNING` or Output Clauses**:
+        *   Databases like PostgreSQL offer a `RETURNING` clause to get data back from `INSERT`, `UPDATE`, or `DELETE` statements in a single query. Other databases (like MySQL or standard SQLite) do not support this or have different syntax (e.g., `OUTPUT` in SQL Server).
+        *   **Recommended Pattern**: For operations needing the affected record's data (especially auto-generated IDs or updated values), perform the primary operation first, then follow with a separate `SELECT` query.
+            ```typescript
+            // Example: Insert then Fetch (Portable)
+            await db('users').insert(userData);
+            const newUser = await db('users').where({ email: userData.email }).first();
+            // newUser now contains the full record, including any auto-generated ID.
+
+            // Example: Update then Fetch (Portable)
+            await db('users').where({ id: userId }).update(updatedData);
+            const updatedUser = await db('users').where({ id: userId }).first();
+            // updatedUser now contains the record with the updated values.
+            ```
+
+### End-to-End Feature Workflow: Building '[Feature Name]'
 
 This workflow outlines how you should approach building a new, self-contained feature (e.g., 'Task Management', 'User Authentication', 'Product Catalog Display') from backend to frontend. You should aim to complete all development and refactoring for one such core feature.
 
@@ -172,7 +165,6 @@ This workflow outlines how you should approach building a new, self-contained fe
         *   Manage component-level and/or global application state as required for the functionality of `[Feature Name]`.
     *   **Navigation & Routing**:
         *   Integrate new pages or views for `[Feature Name]` into the application's navigation structure (e.g., adding links in `Header.tsx`, sidebars, or other relevant UI components).
-        *   Ensure client-side routing for `[Feature Name]` works correctly.
     *   **Styling**: Apply Tailwind CSS to ensure new UI elements for `[Feature Name]` are consistent with the application's established design language and theme (light/dark modes).
 
 4.  **Review & Refactor (Self-Correction & USER Feedback Incorporation)**:
@@ -186,6 +178,10 @@ This workflow outlines how you should approach building a new, self-contained fe
     *   Ensure all parts of the implemented `[Feature Name]` are well-integrated and function cohesively.
 
 Your primary development role for `[Feature Name]` concludes after this 'Review & Refactor' stage. You should move on to the next feature.
+
+## Running the Project
+
+- After All features are implmneted end-to-end, run `npm install` and `npm run dev` to start the development server.
 
 ### Database-Agnostic Queries
 
@@ -269,7 +265,7 @@ Your primary development role for `[Feature Name]` concludes after this 'Review 
 2.  Export `default` component and optional `getServerSideProps` / `getMeta`.
 3.  Routes are automatically detected from this directory by `server.ts`.
 
-### Best Practices for AI-Driven Development
+### Best Practices for Development
 
 To facilitate the creation of robust and bug-free features using this template, you should adhere to the following core TypeScript and Node.js ESM development principles:
 
@@ -337,9 +333,3 @@ By consistently applying these principles, AI-generated code will be more reliab
 -   **Framework**: `@fastify/react` with Vite.
 -   **SSR Entry**: `src/client/root.tsx`.
 -   **Server Data**: `getServerSideProps` in page components.
--   **Head Management**: `@unhead/react` via `<AppRoute>` (`src/client/components/layout/AppRoute.tsx`).
-
-## `webcontainer-setup.js`
-
--   **Purpose**: Ensures `JWT_SECRET` exists in `.env` for web container environments, generating one if absent.
--   **Trigger**: Runs via `npm run webcontainer`.
