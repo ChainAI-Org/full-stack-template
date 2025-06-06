@@ -8,11 +8,15 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 
 *   **API Synchronization**: Always update frontend API calls (typically in `src/client/pages/` components or `src/client/fetch.ts`) after modifying backend API routes (`src/routes/`). (See details under "Adding API Endpoints")
 *   **ESM Import Paths (Backend)**: Remember to use full relative paths with `.js` extensions for JavaScript module imports in the backend (e.g., `import utils from './utils.js';`).
-*   **Database Migrations & Seeds**: After creating new migration files, run `npm run db:migrate:latest`. After creating new seed files, run `npm run db:seed:run`. (Refer to "Key Scripts")
+*   **Database Migrations & Seeds**:
+    *   When creating a new migration (e.g., `npm run db:migrate:make -- <name>`), you **must then edit the newly generated file** in `src/db/migrations/` to define your schema changes (e.g., creating tables, adding columns) using Knex.js syntax.
+    *   After defining the changes in the migration file, run `npm run db:migrate:latest` to apply them.
+    *   Similarly, after creating new seed files (e.g., `npm run db:seed:make -- <name>`), populate them with data and then run `npm run db:seed:run`. (Refer to "Key Scripts" for more details on commands).
 *   **Frontend Routing & Layouts**: Pages in `src/client/pages/` are auto-routed. Layouts are applied via `src/client/layouts/` and the `AppRoute` component.
 *   **TypeScript Type Imports**: Use `import type { MyType } from './myModule';` for type-only imports to ensure correct module handling.
 *   **Import/Export Matching**: Ensure your import style (e.g., `import { item } from './module'` for named exports, or `import item from './module'` for default exports) correctly matches how the item is exported from its source module.
 *   **Routing Package**: This project uses React Router v7 integrated via `@fastify/react` for SSR. Do **not** install or use `react-router-dom`; rely on the existing routing setup and page structure in `src/client/pages/`.
+*   **Focused Feature Development**: To ensure thoroughness and integration, aim to complete one feature (including both backend and frontend aspects) entirely before moving on to the next. This helps prevent context switching and ensures all parts of a feature are working together.
 *   **Architectural Bedrock (Generally, do not modify these files)**: 
     *   `vite.config.js`
     *   `postcss.config.mjs`
