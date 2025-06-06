@@ -1,12 +1,36 @@
+"use client";
+
 import * as React from 'react';
 const { useState, FormEvent } = React;
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router';
+import { Input } from '../common/Input';
+import { Button } from '../common/Button';
+import { AlertCircle, Mail, Lock } from 'lucide-react';
 
+// Logo component (similar to Header.tsx, adapted for login page)
+const Logo = () => (
+  <Link to="/" className="flex items-center space-x-2 group mb-8 justify-center">
+    <svg 
+      width="36" 
+      height="36" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      className="text-brand-accent-blue group-hover:text-brand-accent-blue/80 dark:text-brand-accent-blue dark:group-hover:text-brand-accent-blue/80 transition-colors duration-subtle"
+    >
+      <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span className="text-3xl font-semibold text-brand-light-text-primary dark:text-brand-dark-text-primary group-hover:text-brand-accent-blue dark:group-hover:text-brand-accent-blue transition-colors duration-subtle">
+      TaskForge
+    </span>
+  </Link>
+);
 
 export function Login() {
   const { login, error, loading, clearError } = useAuth();
-  
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,92 +38,92 @@ export function Login() {
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    // Form validation
     if (!email || !password) {
-      setFormError('Email and password are required');
+      setFormError('Email and password are required.');
       return;
     }
-    
-    // Clear previous errors
     clearError();
     setFormError('');
-    
     try {
       await login(email, password);
-      window.location.assign('/');
+      // Consider using react-router navigation if available and preferred
+      window.location.assign('/'); 
     } catch (err) {
-      // Error is handled in the auth context
-      console.error('Login error:', err);
+      // Error is primarily handled by the auth context's 'error' state
+      // setFormError can be used for client-side validation errors
+      console.error('Login submission error:', err);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Log In to Your Account</h2>
-      
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md">
-          <div className="flex">
-            <svg className="h-5 w-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <p>{error}</p>
+    <div className="min-h-screen flex flex-col items-center justify-center dark:bg-brand-dark-bg bg-brand-light-bg py-12 px-4 sm:px-6 lg:px-8">
+      <div className="dark:bg-brand-dark-surface bg-brand-light-surface p-8 sm:p-10 rounded-xl shadow-2xl w-full max-w-md space-y-8">
+        <Logo />
+        
+        <h2 className="text-2xl sm:text-3xl font-bold text-center dark:text-brand-dark-text-primary text-brand-light-text-primary">
+          Log in to your account
+        </h2>
+        
+        {(error || formError) && (
+          <div className="p-3 bg-brand-accent-red/10 border border-brand-accent-red/30 text-brand-accent-red rounded-md text-sm">
+            <div className="flex items-center">
+              <AlertCircle size={18} className="mr-2 flex-shrink-0" />
+              <p>{error || formError}</p>
+            </div>
           </div>
-        </div>
-      )}
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-gray-700 text-sm font-semibold mb-2" htmlFor="email">
-            Email Address
-          </label>
-          <input
+        )}
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Input
             id="email"
             type="email"
+            label="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 border border-purple-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
             placeholder="your@email.com"
+            leftIcon={<Mail size={18} />}
             required
+            disabled={loading}
+            // Example of more specific error, can be tied to formError state
+            // errorMessage={formError && !email ? 'Email is required' : ''} 
           />
-        </div>
-        
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-gray-700 text-sm font-semibold" htmlFor="password">
-              Password
-            </label>
-          </div>
-          <input
+          
+          <Input
             id="password"
             type="password"
+            label="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 border border-purple-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
             placeholder="••••••••"
+            leftIcon={<Lock size={18} />}
             required
-          />
-
-          
-        </div>
-        
-        <div className="pt-2">
-          <button
-            type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50"
-          >
-            Log In
-          </button>
-        </div>
+            // errorMessage={formError && !password ? 'Password is required' : ''}
+          />
+          
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+              disabled={loading}
+              // isLoading={loading} // Assuming Button component supports an isLoading prop for a spinner
+            >
+              {loading ? 'Logging In...' : 'Log In'}
+            </Button>
+          </div>
+        </form>
         
-        <div className="text-center mt-4">
-          <Link to="/signup" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+        <div className="text-center">
+          <Button 
+            href="/signup" 
+            variant="link" 
+            className="text-sm"
+          >
             Don't have an account? Sign up
-          </Link>
+          </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

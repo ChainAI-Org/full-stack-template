@@ -14,30 +14,56 @@ AI-ready template for rapid full-stack TypeScript application development. Creat
 ```
 .
 ├── dist/                     # Build output
-├── public/                   # Static assets
+├── public/                   # Static assets (served by Fastify)
 ├── src/
-│   ├── client/               # Frontend React application
+│   ├── client/               # Frontend React application (Vite)
+│   │   ├── assets/           # Static client-side assets (e.g., images)
+│   │   │   └── logo.svg      # Application logo
 │   │   ├── components/       # Reusable UI components
+│   │   │   ├── auth/         # Authentication-specific components
+│   │   │   │   ├── Login.tsx
+│   │   │   │   ├── ProtectedRoute.tsx
+│   │   │   │   └── Signup.tsx
+│   │   │   ├── common/       # Core, general-purpose components
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   └── Modal.tsx
+│   │   │   └── layout/       # Components used within main layouts (e.g., Header)
+│   │   │       └── Header.tsx
 │   │   ├── context/          # React contexts
-│   │   ├── pages/            # Page components (routing)
-│   │   ├── layouts/          # Page layouts
-│   │   ├── hooks/            # Custom React hooks
-│   │   ├── base.css          # Tailwind imports
-│   │   ├── index.html        # HTML entry point
-│   │   └── root.tsx          # Root React component (SSR entry)
-│   ├── db/                   # Migrations & seeds
-│   ├── models/               # Data models/types
-│   ├── routes/               # API route definitions
+│   │   │   ├── AuthContext.tsx
+│   │   │   └── ThemeContext.tsx
+│   │   ├── hooks/            # Custom React hooks (currently empty)
+│   │   ├── layouts/          # Main page layout structures (used by SSR)
+│   │   │   ├── auth.jsx      # Layout for authentication pages
+│   │   │   └── default.jsx   # Default layout for other pages
+│   │   ├── lib/              # Utility functions, helpers specific to client
+│   │   │   └── utils.ts
+│   │   ├── pages/            # Page components (auto-routed by SSR)
+│   │   │   ├── index.tsx     # Home page (/)
+│   │   │   ├── login.tsx     # Login page (/login)
+│   │   │   ├── signup.tsx    # Signup page (/signup)
+│   │   │   └── tasks.tsx     # Tasks page (/tasks)
+│   │   ├── base.css          # Tailwind base styles, custom properties, @theme
+│   │   ├── context.ts        # SSR page context provider
+│   │   ├── fetch.ts          # Client-side API fetch utility
+│   │   ├── index.html        # Vite HTML entry point
+│   │   ├── root.tsx          # Client root component (hydrates SSR)
+│   │   └── tsconfig.json     # TypeScript config for client-side code
+│   ├── db/                   # Database migrations & seeds
+│   ├── models/               # Data models/types (e.g., Task interface)
+│   ├── routes/               # Backend API route definitions (Fastify plugins)
 │   ├── scripts/              # Utility scripts (e.g., db-setup.ts)
-│   ├── database.ts           # DB connection setup
-│   ├── knexfile.ts           # Knex configuration
-│   └── server.ts             # Fastify server entry point
+│   ├── database.ts           # Knex database connection setup
+│   ├── knexfile.ts           # Knex configuration for migrations/seeds
+│   └── server.ts             # Fastify server entry point & SSR handler
 ├── .env                      # Environment variables (version-controlled base)
 ├── package.json
-├── postcss.config.mjs
-├── tailwind.config.js
-├── tsconfig.json
-└── vite.config.js
+├── postcss.config.mjs        # PostCSS configuration (for Tailwind)
+├── tailwind.config.js        # Tailwind CSS v4 configuration
+├── tsconfig.json             # Root TypeScript configuration (for backend)
+└── vite.config.js            # Vite configuration for client-side bundling
 ```
 
 ## Getting Started

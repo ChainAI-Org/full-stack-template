@@ -1,91 +1,71 @@
-/* Tailwind CSS v4 import */
 @import 'tailwindcss';
+/* Tailwind CSS v4 import -- This comment is now slightly misleading as the import is above, but keeping structure */
 
-/* Define custom colors using Tailwind v4's pattern */
-@theme {
-  /* Simple custom colors with direct hex values */
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-secondary-500: #8b5cf6;
-  --color-secondary-600: #7c3aed;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@config "../../tailwind.config.js";
 
-/* Modern UI styles with gradients */
+/* 
+  Base styles are now primarily handled by Tailwind config (tailwind.config.js) 
+  and the plugin for html dark/light mode. 
+  This file is for minimal global overrides or very specific base element styling 
+  not covered by utility classes or easily by the theme plugin.
+*/
+
 html {
-  background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
-  color: #111827;
-  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth; /* For subtle scroll animations */
 }
 
 body {
+  @apply font-sans; /* Uses 'Inter' by default from Tailwind config */
   min-height: 100vh;
+  /* Default text and background colors are set by the plugin in tailwind.config.js */
 }
 
 #root {
-  max-width: 72rem;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1rem;
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Max-width and centering can be handled by layout components */
+  /* padding: 1rem; */ /* This can also be part of a main layout component */
 }
 
-/* Custom button styles */
-button.btn-primary {
-  @apply px-4 py-2 bg-linear-to-r from-primary-500 to-secondary-500 text-white rounded-md
-    shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200
-    hover:from-primary-600 hover:to-secondary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-}
+/* 
+  Custom button styles (.btn-primary, .btn-secondary) are removed. 
+  Buttons will be styled using Tailwind utility classes directly in components 
+  or via @apply for reusable component-specific styles if needed. 
+*/
 
-button.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3), 0 4px 6px -2px rgba(14, 165, 233, 0.2);
-}
-
-button.btn-secondary {
-  background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 100%);
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2), 0 2px 4px -1px rgba(139, 92, 246, 0.1);
-}
-
-button.btn-secondary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3), 0 4px 6px -2px rgba(139, 92, 246, 0.2);
-}
-
-/* Basic styling */
+/* Basic styling for links - can be customized further with brand colors */
 a {
-  color: #0ea5e9;
-  font-weight: bold;
+  @apply text-brand-accent-blue hover:text-brand-accent-blue/90 dark:hover:text-brand-accent-blue/80 transition-colors duration-fast ease-subtle;
+  /* Consider removing default font-weight bold if not desired globally */
 }
 
-a:hover {
-  color: #0369a1;
-}
-
-a:active {
-  color: #075985;
-}
-
+/* General text elements - rely on Tailwind's typography utilities */
 p {
-  font-size: 1em;
+  @apply text-base leading-relaxed;
+  /* Example: dark:text-brand-dark-text-secondary */
+}
+
+/* Lists - can be styled with utilities */
+ul, ol {
+  /* Add base list styling if needed, e.g., list-style-position */
 }
 
 ul li:not(:last-child) {
-  margin-bottom: 0.5em;
-}
-
-ul li {
-  break-inside: avoid;
-  font-size: 1em;
+  /* margin-bottom: 0.5em; */ /* Use Tailwind spacing utilities like mb-2 */
 }
 
 code {
-  font-family: 'Consolas', 'Andale Mono', monospace;
-  font-size: 0.9em;
+  @apply font-mono text-sm bg-brand-dark-surface dark:bg-brand-light-surface p-1 rounded-sm;
+  /* Adjust colors for light/dark mode text on surface */
 }
 
 img {
   max-width: 100%;
+  height: auto; /* Maintain aspect ratio */
+}
+
+/* Add focus visible styles for accessibility */
+*:focus-visible {
+  @apply outline-none ring-2 ring-brand-accent-blue ring-offset-2 ring-offset-brand-light-bg dark:ring-offset-brand-dark-bg;
 }
