@@ -12,6 +12,7 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 *   **Frontend Routing & Layouts**: Pages in `src/client/pages/` are auto-routed. Layouts are applied via `src/client/layouts/` and the `AppRoute` component.
 *   **TypeScript Type Imports**: Use `import type { MyType } from './myModule';` for type-only imports to ensure correct module handling.
 *   **Import/Export Matching**: Ensure your import style (e.g., `import { item } from './module'` for named exports, or `import item from './module'` for default exports) correctly matches how the item is exported from its source module.
+*   **Routing Package**: This project uses React Router v7 integrated via `@fastify/react` for SSR. Do **not** install or use `react-router-dom`; rely on the existing routing setup and page structure in `src/client/pages/`.
 *   **Architectural Bedrock (Generally, do not modify these files)**: 
     *   `vite.config.js`
     *   `postcss.config.mjs`
