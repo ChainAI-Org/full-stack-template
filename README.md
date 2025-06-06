@@ -2,6 +2,28 @@
 
 AI-ready template for rapid full-stack TypeScript application development. Created using Moxby (https://moxby.com).
 
+## Common Issues & Key Reminders
+
+To ensure smooth development and avoid common pitfalls with this template, please keep the following in mind:
+
+*   **API Synchronization**: Always update frontend API calls (typically in `src/client/pages/` components or `src/client/fetch.ts`) after modifying backend API routes (`src/routes/`). (See details under "Adding API Endpoints")
+*   **ESM Import Paths (Backend)**: Remember to use full relative paths with `.js` extensions for JavaScript module imports in the backend (e.g., `import utils from './utils.js';`).
+*   **Database Migrations & Seeds**: After creating new migration files, run `npm run db:migrate:latest`. After creating new seed files, run `npm run db:seed:run`. (Refer to "Key Scripts")
+*   **Frontend Routing & Layouts**: Pages in `src/client/pages/` are auto-routed. Layouts are applied via `src/client/layouts/` and the `AppRoute` component.
+*   **TypeScript Type Imports**: Use `import type { MyType } from './myModule';` for type-only imports to ensure correct module handling.
+*   **Import/Export Matching**: Ensure your import style (e.g., `import { item } from './module'` for named exports, or `import item from './module'` for default exports) correctly matches how the item is exported from its source module.
+*   **Architectural Bedrock (Generally, do not modify these files)**: 
+    *   `vite.config.js`
+    *   `postcss.config.mjs`
+    *   `src/server.ts`
+    *   `src/client/root.tsx` (The entry point for the React application and core SSR hydration logic.)
+    *   `src/client/index.html`
+        *   `src/client/context.ts` (The SSR page context mechanism.)`
+        *   `src/knexfile.ts`
+        *   `src/database.ts`
+        *   `src/client/context/AuthContext.tsx` (Extending functionality is fine; altering the core token/user management logic requires care.)
+        *   `src/client/context/ThemeContext.tsx` (Extending functionality is fine; altering core theme switching requires care.)
+
 ## Tech Stack
 
 -   **Backend**: Fastify, TypeScript, Knex.js, JWT Auth (HTTP-only Cookies)
@@ -181,6 +203,7 @@ AI-ready template for rapid full-stack TypeScript application development. Creat
 
 1.  Define logic in `src/routes/` (e.g., `src/routes/user.routes.ts`).
 2.  Register in `src/routes/index.ts`.
+3.  **Important**: If you modify or add backend API routes, ensure corresponding frontend API calls (typically in `src/client/pages/` components or `src/client/fetch.ts`) are updated to match the new endpoints, request/response structures, and HTTP methods.
 
 ### Adding Pages (React)
 
