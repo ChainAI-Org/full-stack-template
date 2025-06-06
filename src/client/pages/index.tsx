@@ -118,7 +118,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Call to Action (Example) */}
       {!user && (
         <section className="text-center bg-brand-dark-surface rounded-xl p-8 md:p-12 shadow-subtle-lg border border-brand-dark-border">
           <h2 className="text-3xl font-semibold text-brand-dark-text-primary mb-4">
