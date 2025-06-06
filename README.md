@@ -16,7 +16,7 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 *   **TypeScript Type Imports**: Use `import type { MyType } from './myModule';` for type-only imports to ensure correct module handling.
 *   **Import/Export Matching**: Ensure your import style (e.g., `import { item } from './module'` for named exports, or `import item from './module'` for default exports) correctly matches how the item is exported from its source module.
 *   **Routing Package**: This project uses React Router v7 integrated via `@fastify/react` for SSR. Do **not** install or use `react-router-dom`; rely on the existing routing setup and page structure in `src/client/pages/`.
-*   **Focused Feature Development**: To ensure thoroughness and integration, aim to complete one feature (including both backend and frontend aspects) entirely before moving on to the next. This helps prevent context switching and ensures all parts of a feature are working together.
+*   **Focused Feature Development**: To ensure thoroughness and integration, aim to complete one feature (including both backend and frontend aspects) entirely before moving on to the next. This helps prevent context switching and ensures all parts of a feature are working together. See "Example End-to-End Feature Workflow" under "Development Workflow" for a detailed illustration.
 *   **Architectural Bedrock (Generally, do not modify these files)**: 
     *   `vite.config.js`
     *   `postcss.config.mjs`
@@ -133,6 +133,57 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 **Note on Development:**
 -   If you add **new migration files**, run `npm run db:migrate:latest`.
 -   If you add **new seed files** run `npm run db:seed:run`.
+
+### Example End-to-End Feature Workflow: Building '[Feature Name]'
+
+This workflow outlines how you should approach building a new, self-contained feature (e.g., 'Task Management', 'User Authentication', 'Product Catalog Display') from backend to frontend. You should aim to complete all development and refactoring for one such core feature.
+
+1.  **Define Requirements**:
+    *   **Goal**: Clearly articulate what the feature `[Feature Name]` should achieve based on USER input.
+    *   **Data**: Identify necessary data models, fields, and relationships for `[Feature Name]`.
+    *   **Scope**: Define what is included and explicitly what is out of scope for this iteration of `[Feature Name]`.
+
+
+2.  **Backend Implementation**:
+    *   **Database (Migrations)**:
+        *   Based on requirements, identify necessary schema changes (new tables, columns, modifications for `[Feature Name]`)
+        *   Generate migration file(s) using the project's script (e.g., `npm run db:migrate:make -- <migration_name_for_feature>`).
+        *   **Crucial**: Populate the newly generated migration file(s) in `src/db/migrations/` with the correct Knex.js code to implement the schema changes.
+    *   **API Endpoints (`src/routes/`)**:
+        *   Design and define necessary API endpoints for `[Feature Name]` (e.g., `GET /api/[feature_slug]`, `POST /api/[feature_slug]`, `PUT /api/[feature_slug]/:id`).
+        *   Implement route handlers in a new or existing route file (e.g., `src/routes/[feature_slug].routes.ts`).
+        *   Ensure handlers include input validation, appropriate authentication/authorization checks (leveraging existing mechanisms like `AuthContext` if applicable), and calls to data model functions.
+    *   **Data Model/Logic (`src/models/`)**:
+        *   Implement functions in new or existing model files (e.g., `src/models/[feature_name].model.ts`) to handle data persistence and business logic related to `[Feature Name]` (e.g., CRUD operations, data transformations, complex queries).
+    *   **Register Routes**: Ensure any new API routes are correctly registered in the main router setup (e.g., in `src/routes/index.ts`).
+    *   **Internal API Design Verification**: You should internally verify (e.g., through code analysis or logical review) that the implemented API endpoints, request/response structures, and data models align with the defined requirements for `[Feature Name]`.
+
+3.  **Frontend Implementation (`src/client/`)**:
+    *   **Page(s) & Components (`src/client/pages/`, `src/client/components/`)**:
+        *   Create necessary React page components for `[Feature Name]` (e.g., `src/client/pages/[feature_slug]/index.tsx`, `src/client/pages/[feature_slug]/[id].tsx`) and any reusable sub-components under `src/client/components/`.
+        *   Pages should handle data fetching from the new backend APIs, display information, and manage user interactions related to `[Feature Name]`.
+        *   Utilize existing common components (e.g., `Button.tsx`, `Input.tsx`) where appropriate to maintain UI consistency.
+    *   **API Call Functions (e.g., in `src/client/fetch.ts` or within page components)**:
+        *   Implement typed functions to interact with the newly created backend API endpoints for `[Feature Name]`.
+        *   Manage loading states, handle API responses (both success and error cases), and provide appropriate user feedback.
+    *   **State Management (e.g., `useState`, `useContext`, or other established project patterns)**:
+        *   Manage component-level and/or global application state as required for the functionality of `[Feature Name]`.
+    *   **Navigation & Routing**:
+        *   Integrate new pages or views for `[Feature Name]` into the application's navigation structure (e.g., adding links in `Header.tsx`, sidebars, or other relevant UI components).
+        *   Ensure client-side routing for `[Feature Name]` works correctly.
+    *   **Styling**: Apply Tailwind CSS to ensure new UI elements for `[Feature Name]` are consistent with the application's established design language and theme (light/dark modes).
+
+4.  **Review & Refactor (Self-Correction & USER Feedback Incorporation)**:
+    *   Review all new backend and frontend code written for `[Feature Name]` for:
+        *   Clarity, readability, and maintainability.
+        *   Efficiency and potential performance considerations.
+        *   Adherence to security best practices (e.g., input sanitization on backend, proper handling of sensitive data on frontend).
+        *   Consistency with project conventions and the guidelines in this README.
+        *   Robust error handling and clear user feedback mechanisms.
+    *   If the USER provides feedback during the development of `[Feature Name]`, you should incorporate these changes.
+    *   Ensure all parts of the implemented `[Feature Name]` are well-integrated and function cohesively.
+
+Your primary development role for `[Feature Name]` concludes after this 'Review & Refactor' stage. You should move on to the next feature.
 
 ### Database-Agnostic Queries
 
