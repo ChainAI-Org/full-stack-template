@@ -9,6 +9,7 @@ To ensure smooth development and avoid common pitfalls with this template, pleas
 *   **API Synchronization**: Always update frontend API calls (typically in `src/client/pages/` components or `src/client/fetch.ts`) after modifying backend API routes (`src/routes/`). (See details under "Adding API Endpoints")
 *   **ESM Import Paths (Backend)**: Remember to use full relative paths with `.js` extensions for JavaScript module imports in the backend (e.g., `import utils from './utils.js';`).
 *   **Database Migrations & Seeds**:
+    *   **Migration Naming & Order**: To ensure explicit and clear control over the execution sequence, this project uses **numerical prefixes** for migration filenames (e.g., `001_create_users.js`, `002_add_email_to_users.js`, `003_create_posts_table.js`) and you must do the same. Knex runs migrations in lexicographical (alphabetical/numerical) order based on these filenames.
     *   When creating a new migration (e.g., `npm run db:migrate:make -- <name>`), you **must then edit the newly generated file** in `src/db/migrations/` to define your schema changes (e.g., creating tables, adding columns) using Knex.js syntax.
     *   After defining the changes in the migration file, run `npm run db:migrate:latest` to apply them.
     *   Similarly, after creating new seed files (e.g., `npm run db:seed:make -- <name>`), populate them with data and then run `npm run db:seed:run`. (Refer to "Key Scripts" for more details on commands).
